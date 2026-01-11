@@ -48,6 +48,7 @@
 
 .sheet-editor {
     display: grid;
+    align-content: start;
     height: 100%;
     overflow: auto;
 }
