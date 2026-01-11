@@ -12,7 +12,7 @@ export default function SheetNav() {
 
 function SheetNavItem({ label, isActive }) {
     return (
-        <div className={`sheet-nav__item${isActive ? " sheet-nav__item--active" : ""}`}>
+        <div className={`sheet-nav__item${isActive ? ' sheet-nav__item--active' : ''}`}>
             <span>{label}</span>
         </div>
     );
