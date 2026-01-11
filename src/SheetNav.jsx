@@ -1,4 +1,4 @@
-import { sheetNames } from './mock'
+import { sheetNames } from './mock';
 
 export default function SheetNav() {
     return (
@@ -8,7 +8,7 @@ export default function SheetNav() {
             )}
         </div>
     );
-}
+};
 
 function SheetNavItem({ label, isActive }) {
     return (
