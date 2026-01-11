@@ -18,7 +18,7 @@
     flex-direction: column;
     overflow-y: auto;
     background-color: var(--color-bg-primary);
-    border-right: 1px solid var(--color-border);
+    border-right: var(--border-normal);
 }
 
 .sheet-nav__item {
@@ -37,7 +37,7 @@
 
 .sheet-nav__item--active {
     background-color: var(--color-bg-active);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
 }
 
 .sheet-nav__item > span {
