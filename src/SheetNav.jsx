@@ -1,3 +1,5 @@
+import { sheetNames } from './mock'
+
 export default function SheetNav() {
     return (
         <div className="sheet-nav">
@@ -15,5 +17,3 @@ function SheetNavItem({ label, isActive }) {
         </div>
     );
 }
-
-const sheetNames = []
