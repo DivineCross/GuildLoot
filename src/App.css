@@ -1,5 +1,10 @@
 :root {
     --color-border: var(--palette-gray-400);
+    --border-normal: 1px solid var(--color-border);
+    --border-medium: 2px solid var(--color-border);
+    --border-bold: 3px solid var(--color-border);
+    --font-weight-medium: 500;
+    --font-weight-bold: 700;
 }
 
 .app {
@@ -42,7 +47,27 @@
 }
 
 .sheet-editor {
+    display: grid;
     height: 100%;
-    overflow-x: auto;
-    overflow-y: auto;
+    overflow: auto;
+}
+
+.sheet__head > .sheet__cell {
+    border-bottom: var(--border-bold);
+    font-weight: var(--font-weight-bold);
+}
+
+.sheet__row {
+    display: contents;
+}
+
+.sheet__cell {
+    display: flex;
+    align-items: center;
+    min-width: calc(4px * 2 + 16px);
+    height: calc(4px * 2 + 4px * 2 + 16px);
+    padding: 4px;
+    font-size: 16px;
+    outline: var(--border-normal);
+    white-space: nowrap;
 }
