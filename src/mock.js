@@ -1,3 +1,18 @@
+class Sheet {
+    constructor(name = '', heads = [], rows = []) {
+        this.name = name;
+        this.heads = heads;
+        this.rows = rows;
+    }
+
+    static fromPaste(name = '', content = '') {
+        const rows = content.trim().split('\n')
+            .map(line => line.split('\t'));
+
+        return new Sheet(name, rows[0], rows.slice(1));
+    }
+}
+
 const transactionHeads = [
     '日期', '售出物品', '數量', '結算金額', '交易人', '交易ID',
 ];
@@ -74,14 +89,6 @@ const bossRows = [
     ['', '', '', '', '', '', '妹妹6', '老頭12'],
     ['', '', '', '', '', '', '妹妹7', '老頭13'],
 ];
-
-class Sheet {
-    constructor(name = '', heads = [], rows = []) {
-        this.name = name;
-        this.heads = heads;
-        this.rows = rows;
-    }
-}
 
 const sheetMap = new Map;
 const setMap = (name, heads, rows) => sheetMap.set(name, new Sheet(name, heads, rows));
