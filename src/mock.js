@@ -1,17 +1,8 @@
-export const sheetNames = [
-    '戰利品',
-    '交易所',
-    '口袋',
-    '道具',
-    '頭目',
-    '成員',
-];
-
-export const transactionHeads = [
+const transactionHeads = [
     '日期', '售出物品', '數量', '結算金額', '交易人', '交易ID',
 ];
 
-export const transactionRows = [
+const transactionRows = [
     ['2023/11/29', '盜賊藍本', 1, 368, '烏薩奇', 'T0001'],
     ['2023/12/02', '獠牙腰帶', 1, 368, '烏薩奇', 'T0002'],
     ['2023/12/02', '獠牙腰帶', 1, 368, '烏薩奇', 'T0003'],
@@ -64,11 +55,11 @@ export const transactionRows = [
     ['2024/01/26', '戰士紫本', 1, 2287, '烏薩奇', 'T0050'],
 ];
 
-export const bossHeads = [
+const bossHeads = [
     '圖2', '圖3', '圖4', '圖5', '圖6', '副本', '公會副本', '老公會副本',
 ];
 
-export const bossRows = [
+const bossRows = [
     ['法樂拔', '拉依諾勒', '斯巴特勒', '梅吉爾', '瓦利', 'D4', 'N', '老頭1'],
     ['塞諾比亞', '菲約倫', '殘骸斯巴特勒', '辛瑪拉', '', 'D7', '女神1', '老頭2'],
     ['赫尼爾', '殘骸菲約倫', '朵拉絲羅樂', '海爾加姆', '', '', '女神2', '老頭3'],
@@ -83,3 +74,23 @@ export const bossRows = [
     ['', '', '', '', '', '', '妹妹6', '老頭12'],
     ['', '', '', '', '', '', '妹妹7', '老頭13'],
 ];
+
+class Sheet {
+    constructor(name = '', heads = [], rows = []) {
+        this.name = name;
+        this.heads = heads;
+        this.rows = rows;
+    }
+}
+
+const sheetMap = new Map;
+const setMap = (name, heads, rows) => sheetMap.set(name, new Sheet(name, heads, rows));
+
+setMap('戰利品', [], []);
+setMap('交易所', transactionHeads, transactionRows);
+setMap('口袋', [], []);
+setMap('道具', [], []);
+setMap('頭目', bossHeads, bossRows);
+setMap('成員', [], []);
+
+export { sheetMap, Sheet };
