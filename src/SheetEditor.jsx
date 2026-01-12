@@ -1,5 +1,7 @@
 export default function SheetEditor({ heads = [], rows = [] }) {
-    const gridStyle = { gridTemplateColumns: `repeat(${heads.length}, max-content)` };
+    const colCount = heads.length;
+    const gridStyle = { gridTemplateColumns: `repeat(${colCount}, max-content)` };
+    rows = rows.map(row => [...Array(colCount).keys()].map(i => row[i] ?? ''));
 
     return (
         <div className="sheet-editor" style={gridStyle}>
