@@ -1,27 +1,21 @@
-import { transactionHeads, transactionRows } from './mock';
-
-// TODO: repalce with well-defined structure
-const heads = transactionHeads;
-const rows = transactionRows;
-
-export default function SheetEditor() {
+export default function SheetEditor({ heads = [], rows = [] }) {
     const gridStyle = { gridTemplateColumns: `repeat(${heads.length}, max-content)` };
 
     return (
         <div className="sheet-editor" style={gridStyle}>
-            <SheetHead />
-            <SheetBody />
+            <SheetHead heads={heads} />
+            <SheetBody rows={rows} />
         </div>
     );
 };
 
-function SheetHead() {
+function SheetHead({ heads }) {
     return (
         <SheetRow cells={heads} isHead={true} />
     );
 }
 
-function SheetBody() {
+function SheetBody({ rows }) {
     return rows.map((row, i) =>
         <SheetRow key={i} cells={row} />
     );
