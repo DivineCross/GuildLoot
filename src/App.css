@@ -65,9 +65,9 @@
 .sheet__cell {
     display: flex;
     align-items: center;
-    min-width: calc(4px * 2 + 16px);
-    height: calc(4px * 2 + 4px * 2 + 16px);
-    padding: 4px;
+    min-width: calc(8px * 2 + 16px);
+    height: calc(8px * 2 + 16px);
+    padding: 8px;
     font-size: 16px;
     outline: var(--border-normal);
     white-space: nowrap;
