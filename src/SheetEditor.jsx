@@ -14,13 +14,12 @@ export default function SheetEditor({ sheet }) {
     const heads = sheet.heads;
     const colCount = heads.length;
     const gridStyle = { gridTemplateColumns: `repeat(${colCount}, max-content)` };
-    const rows = sheet.rows.map(row => [...Array(colCount).keys()].map(i => row[i] ?? new Cell));
 
     return (
         <Context.Provider value={context}>
             <div className="sheet-editor" style={gridStyle}>
                 <SheetHead cells={heads} />
-                <SheetBody rows={rows} />
+                <SheetBody rows={sheet.rows} />
             </div>
         </Context.Provider>
     );
