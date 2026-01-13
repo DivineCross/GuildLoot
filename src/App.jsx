@@ -12,7 +12,7 @@ export default function App() {
     return (
         <div className="app">
             <SheetNav names={sheetNames} activeName={activeName} onSelect={setActiveName} />
-            <SheetEditor {...(sheetMap.get(activeName))} />
+            <SheetEditor key={activeName} sheet={sheetMap.get(activeName)} />
         </div>
     );
 };
