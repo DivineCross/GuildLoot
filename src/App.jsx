@@ -4,7 +4,7 @@ import SheetEditor from './SheetEditor';
 import './App.css';
 
 import { sheetMap as mockSheetMap } from './mock';
-import { Cell } from './sheet';
+import Sheet, { Cell } from './sheet';
 
 const sheetMap = loadData();
 
@@ -20,8 +20,22 @@ export default function App() {
     );
 };
 
+/** @returns {Map<string, Sheet>} */
 function loadData() {
-    const sheetMap = mockSheetMap;
+    const localSheetMap = (() => {
+        const appName = 'guildLoot';
+        const mapKey = `${appName}_sheetMap`;
+        const json = localStorage.getItem(mapKey);
+        if (!json)
+            return null;
+
+        const map = new Map(JSON.parse(json)
+            .map(kv => [kv[0], Sheet.fromObject(kv[1])]));
+
+        return map;
+    })();
+
+    const sheetMap = localSheetMap ?? mockSheetMap;
 
     for (const sheet of sheetMap.values())
         sheet.rows = sheet.rows.map(row =>
