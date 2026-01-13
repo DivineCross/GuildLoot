@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useMemo } from 'react';
-import Sheet, { Cell } from './sheet';
+import Sheet, { Cell } from '../core/sheet';
 
 /** @type {React.Context<SheetContext>} */
 const Context = createContext(null);

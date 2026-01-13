@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import SheetNav from './SheetNav';
-import SheetEditor from './SheetEditor';
+import SheetNav from './components/SheetNav';
+import SheetEditor from './components/SheetEditor';
 import './App.css';
 
 import { sheetMap as mockSheetMap } from './mock';
-import Sheet, { Cell } from './sheet';
+import Sheet, { Cell } from './core/sheet';
 
 const sheetMap = loadData();
 

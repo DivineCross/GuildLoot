@@ -1,4 +1,4 @@
-import Sheet from './sheet';
+import Sheet from './core/sheet';
 
 const lootSheet = Sheet.fromPaste('戰利品', `
 日期	頭目	尾刀者	道具	數量	得標者	交易數	交易ID
