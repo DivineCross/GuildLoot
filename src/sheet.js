@@ -1,4 +1,4 @@
-export default class Sheet {
+class Sheet {
     constructor(name = '', heads = [], rows = []) {
         this.name = name;
         this.heads = heads;
@@ -11,4 +11,13 @@ export default class Sheet {
 
         return new Sheet(name, rows[0], rows.slice(1));
     }
-};
+}
+
+class Cell {
+    constructor(value = '') {
+        this.value = value;
+    }
+}
+
+export default Sheet;
+export { Cell };
