@@ -3,12 +3,10 @@ import SheetNav from './SheetNav';
 import SheetEditor from './SheetEditor';
 import './App.css';
 
-import { sheetMap } from './mock';
+import { sheetMap as mockSheetMap } from './mock';
 import { Cell } from './sheet';
 
-for (const sheet of sheetMap.values())
-    sheet.rows = sheet.rows.map(row =>
-        [...Array(sheet.heads.length).keys()].map(i => row[i] ?? new Cell));
+const sheetMap = loadData();
 
 export default function App() {
     const sheetNames = [...sheetMap.keys()];
@@ -21,3 +19,13 @@ export default function App() {
         </div>
     );
 };
+
+function loadData() {
+    const sheetMap = mockSheetMap;
+
+    for (const sheet of sheetMap.values())
+        sheet.rows = sheet.rows.map(row =>
+            [...Array(sheet.heads.length).keys()].map(i => row[i] ?? new Cell));
+
+    return sheetMap;
+}
