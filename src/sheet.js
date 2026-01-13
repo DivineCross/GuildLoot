@@ -1,0 +1,14 @@
+export default class Sheet {
+    constructor(name = '', heads = [], rows = []) {
+        this.name = name;
+        this.heads = heads;
+        this.rows = rows;
+    }
+
+    static fromPaste(name = '', content = '') {
+        const rows = content.trim().split('\n')
+            .map(line => line.split('\t'));
+
+        return new Sheet(name, rows[0], rows.slice(1));
+    }
+};

@@ -1,17 +1,4 @@
-class Sheet {
-    constructor(name = '', heads = [], rows = []) {
-        this.name = name;
-        this.heads = heads;
-        this.rows = rows;
-    }
-
-    static fromPaste(name = '', content = '') {
-        const rows = content.trim().split('\n')
-            .map(line => line.split('\t'));
-
-        return new Sheet(name, rows[0], rows.slice(1));
-    }
-}
+import Sheet from './sheet';
 
 const lootSheet = Sheet.fromPaste('戰利品', `
 日期	頭目	尾刀者	道具	數量	得標者	交易數	交易ID
@@ -309,4 +296,4 @@ sheetMap.set(itemSheet.name, itemSheet);
 sheetMap.set(bossSheet.name, bossSheet);
 sheetMap.set(memberSheet.name, memberSheet);
 
-export { sheetMap, Sheet };
+export { sheetMap };
