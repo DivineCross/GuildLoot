@@ -7,7 +7,7 @@ class Sheet {
 
     static fromPaste(name = '', content = '') {
         const rows = content.trim().split('\n')
-            .map(line => line.split('\t'));
+            .map(line => line.split('\t').map(v => new Cell(v)));
 
         return new Sheet(name, rows[0], rows.slice(1));
     }

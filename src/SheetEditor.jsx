@@ -1,7 +1,9 @@
+import { Cell } from './sheet';
+
 export default function SheetEditor({ heads = [], rows = [] }) {
     const colCount = heads.length;
     const gridStyle = { gridTemplateColumns: `repeat(${colCount}, max-content)` };
-    rows = rows.map(row => [...Array(colCount).keys()].map(i => row[i] ?? ''));
+    rows = rows.map(row => [...Array(colCount).keys()].map(i => row[i] ?? new Cell));
 
     return (
         <div className="sheet-editor" style={gridStyle}>
@@ -28,15 +30,15 @@ function SheetRow({ cells = [], isHead = false }) {
 
     return (
         <div className={`sheet__row${headClass}`}>{cells.map((cell, i) =>
-            <SheetCell key={i} value={cell} />
+            <SheetCell key={i} cell={cell} />
         )}</div>
     );
 }
 
-function SheetCell({ value }) {
+function SheetCell({ cell }) {
     return (
         <div className="sheet__cell">
-            {value}
+            {cell.value}
         </div>
     );
 }
