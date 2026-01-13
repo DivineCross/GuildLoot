@@ -6,9 +6,9 @@ const Context = createContext(null);
 
 /** @param {{sheet: Sheet}} */
 export default function SheetEditor({ sheet }) {
-    const [activeCell, setActiveCell] = useState(null);
+    const [activeCell, setActiveCell] = useState(new Cell);
     const context = useMemo(
-        () => new SheetContext(sheet, activeCell, setActiveCell),
+        () => new SheetContext(sheet, activeCell, setActiveCell, v => activeCell.setValue(v)),
         [sheet, activeCell]);
 
     const heads = sheet.heads;
@@ -52,24 +52,36 @@ function SheetRow({ cells = [], isHead = false }) {
 
 /** @param {{cell: Cell}} */
 function SheetCell({ cell }) {
+    const [value, setValue] = useState(cell.value);
     const context = useContext(Context);
     const isActive = context.activeCell === cell;
     const activeClass = isActive ? ' sheet__cell--active' : '';
 
     return (
-        <div className={`sheet__cell${activeClass}`} onClick={() => context.setActiveCell(cell)}>
-            {cell.value}
+        <div
+            className={`sheet__cell${activeClass}`}
+            onClick={() => context.setActiveCell(cell)}>
+            {isActive
+                ? <input
+                    value={value}
+                    onChange={e => {
+                        setValue(e.target.value);
+                        context.setActiveCellValue(e.target.value);
+                    }} />
+                : value}
         </div>
     );
 }
 
 class SheetContext {
-    constructor(sheet = null, activeCell = null, setActiveCell = () => {}) {
+    constructor(sheet = null, activeCell = null, setActiveCell, setActiveCellValue) {
         /** @type {Sheet} */
         this.sheet = sheet;
         /** @type {Cell} */
         this.activeCell = activeCell;
         /** @type {(cell: Cell) => void} */
         this.setActiveCell = setActiveCell;
+        /** @type {(value: string) => void} */
+        this.setActiveCellValue = setActiveCellValue;
     }
 }
