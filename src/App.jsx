@@ -3,10 +3,9 @@ import SheetNav from './components/SheetNav';
 import SheetEditor from './components/SheetEditor';
 import './App.css';
 
-import { sheetMap as mockSheetMap } from './mock';
-import Sheet, { Cell } from './core/sheet';
+import Service from './core/service';
 
-const sheetMap = loadData();
+const sheetMap = Service.loadData();
 
 export default function App() {
     const sheetNames = [...sheetMap.keys()];
@@ -19,27 +18,3 @@ export default function App() {
         </div>
     );
 };
-
-/** @returns {Map<string, Sheet>} */
-function loadData() {
-    const localSheetMap = (() => {
-        const appName = 'guildLoot';
-        const mapKey = `${appName}_sheetMap`;
-        const json = localStorage.getItem(mapKey);
-        if (!json)
-            return null;
-
-        const map = new Map(JSON.parse(json)
-            .map(kv => [kv[0], Sheet.fromObject(kv[1])]));
-
-        return map;
-    })();
-
-    const sheetMap = localSheetMap ?? mockSheetMap;
-
-    for (const sheet of sheetMap.values())
-        sheet.rows = sheet.rows.map(row =>
-            [...Array(sheet.heads.length).keys()].map(i => row[i] ?? new Cell));
-
-    return sheetMap;
-}
