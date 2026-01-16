@@ -1,15 +1,25 @@
-import { createContext, useContext, useState, useMemo } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import Sheet, { Cell } from '../core/sheet';
 
-/** @type {React.Context<SheetContext>} */
+/**
+ * @typedef {Object} SheetContextType
+ * @property {Sheet} sheet
+ * @property {Cell} activeCell
+ * @property {(cell: Cell) => void} setActiveCell
+ * @property {(value: string) => void} setActiveCellValue
+ */
+/** @type {React.Context<SheetContextType> | null} */
 const Context = createContext(null);
 
 /** @param {{sheet: Sheet}} */
 export default function SheetEditor({ sheet }) {
     const [activeCell, setActiveCell] = useState(new Cell);
-    const context = useMemo(
-        () => new SheetContext(sheet, activeCell, setActiveCell, v => activeCell.setValue(v)),
-        [sheet, activeCell]);
+    const context = {
+        sheet,
+        activeCell,
+        setActiveCell,
+        setActiveCellValue: v => activeCell.setValue(v),
+    };
 
     const heads = sheet.heads;
     const colCount = heads.length;
@@ -71,17 +81,4 @@ function SheetCell({ cell }) {
                 : value}
         </div>
     );
-}
-
-class SheetContext {
-    constructor(sheet = null, activeCell = null, setActiveCell, setActiveCellValue) {
-        /** @type {Sheet} */
-        this.sheet = sheet;
-        /** @type {Cell} */
-        this.activeCell = activeCell;
-        /** @type {(cell: Cell) => void} */
-        this.setActiveCell = setActiveCell;
-        /** @type {(value: string) => void} */
-        this.setActiveCellValue = setActiveCellValue;
-    }
 }
