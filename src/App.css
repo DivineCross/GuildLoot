@@ -72,6 +72,7 @@
     font-size: 16px;
     border: var(--border-normal);
     white-space: nowrap;
+    cursor: default;
 }
 
 .sheet__cell--active {
