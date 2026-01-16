@@ -9,6 +9,7 @@ const StorageKey = Object.freeze({
 export default class Service {
     /** @returns {Map<string, Sheet>} */
     static loadData() {
+        /** @type {Map<string, Sheet>} */
         const localSheetMap = (() => {
             const json = localStorage.getItem(StorageKey.SheetMap);
             if (!json)
@@ -23,8 +24,7 @@ export default class Service {
         const sheetMap = localSheetMap ?? mockSheetMap;
 
         for (const sheet of sheetMap.values())
-            sheet.rows = sheet.rows.map(row =>
-                [...Array(sheet.heads.length).keys()].map(i => row[i] ?? new Cell));
+            sheet.normalize();
 
         return sheetMap;
     }
