@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useRef, useState } from 'react';
 import Sheet, { Cell } from '../core/sheet';
 
 /**
@@ -15,6 +15,8 @@ const Context = createContext(null);
 /** @param {{sheet: Sheet, onSheetChange: () => void}} */
 export default function SheetEditor({ sheet, onSheetChange }) {
     const [activeCell, setActiveCell] = useState(new Cell);
+    const [_, setLocalSheet] = useState(sheet);
+    const editorRef = useRef(null);
 
     /** @type {SheetContextType} */
     const context = {
@@ -29,11 +31,29 @@ export default function SheetEditor({ sheet, onSheetChange }) {
     const colCount = heads.length;
     const gridStyle = { gridTemplateColumns: `repeat(${colCount}, max-content)` };
 
+    const handleAddRow = () => {
+        sheet.addRow();
+        onSheetChange();
+        setLocalSheet(Sheet.fromObject(sheet));
+
+        requestAnimationFrame(() => {
+            if (editorRef.current)
+                editorRef.current.scrollTop = editorRef.current.scrollHeight;
+        });
+    };
+
     return (
         <Context.Provider value={context}>
-            <div className="sheet-editor" style={gridStyle}>
-                <SheetHead cells={heads} />
-                <SheetBody rows={sheet.rows} />
+            <div className="sheet-editor" ref={editorRef}>
+                <div className="sheet__grid" style={gridStyle}>
+                    <SheetHead cells={heads} />
+                    <SheetBody rows={sheet.rows} />
+                </div>
+                <div className="sheet__toolbar">
+                    <button onClick={handleAddRow}>
+                        ＋ 新增列
+                    </button>
+                </div>
             </div>
         </Context.Provider>
     );

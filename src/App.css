@@ -48,10 +48,13 @@
 }
 
 .sheet-editor {
-    display: grid;
-    align-content: start;
     height: 100%;
     overflow: auto;
+}
+
+.sheet__grid {
+    display: grid;
+    align-content: start;
 }
 
 .sheet__head > .sheet__cell {
