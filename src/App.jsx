@@ -10,11 +10,18 @@ const sheetMap = Service.loadData();
 export default function App() {
     const sheetNames = [...sheetMap.keys()];
     const [activeName, setActiveName] = useState(sheetNames[0]);
+    const onSheetChange = () => Service.saveData(sheetMap);
 
     return (
         <div className="app">
-            <SheetNav names={sheetNames} activeName={activeName} onSelect={setActiveName} />
-            <SheetEditor key={activeName} sheet={sheetMap.get(activeName)} />
+            <SheetNav
+                names={sheetNames}
+                activeName={activeName}
+                onSelect={setActiveName} />
+            <SheetEditor
+                key={activeName}
+                sheet={sheetMap.get(activeName)}
+                onSheetChange={onSheetChange} />
         </div>
     );
 };

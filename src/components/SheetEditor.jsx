@@ -6,19 +6,23 @@ import Sheet, { Cell } from '../core/sheet';
  * @property {Sheet} sheet
  * @property {Cell} activeCell
  * @property {(cell: Cell) => void} setActiveCell
- * @property {(value: string) => void} setActiveCellValue
+ * @property {(value: string) => void} onCellChange
+ * @property {() => void} onSheetChange
  */
 /** @type {React.Context<SheetContextType> | null} */
 const Context = createContext(null);
 
-/** @param {{sheet: Sheet}} */
-export default function SheetEditor({ sheet }) {
+/** @param {{sheet: Sheet, onSheetChange: () => void}} */
+export default function SheetEditor({ sheet, onSheetChange }) {
     const [activeCell, setActiveCell] = useState(new Cell);
+
+    /** @type {SheetContextType} */
     const context = {
         sheet,
         activeCell,
         setActiveCell,
-        setActiveCellValue: v => activeCell.setValue(v),
+        onCellChange: v => activeCell.setValue(v),
+        onSheetChange,
     };
 
     const heads = sheet.heads;
@@ -74,9 +78,11 @@ function SheetCell({ cell }) {
             {isActive
                 ? <input
                     value={value}
-                    onChange={e => {
-                        setValue(e.target.value);
-                        context.setActiveCellValue(e.target.value);
+                    onMouseDown={e => e.detail > 1 ? e.preventDefault() : undefined}
+                    onChange={e => setValue(e.target.value)}
+                    onBlur={e => {
+                        context.onCellChange(e.target.value);
+                        context.onSheetChange();
                     }} />
                 : value}
         </div>
