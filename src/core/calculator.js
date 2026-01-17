@@ -55,4 +55,4 @@ function Calculate(sheetMap) {
     }
 }
 
-export { CreateValidator as SetSheetMeta, Calculate };
+export { Calculate };
