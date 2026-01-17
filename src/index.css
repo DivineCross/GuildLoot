@@ -8,6 +8,7 @@
     --palette-gray-400: #dddddd;
     --palette-blue-100: #cfdfff;
     --palette-blue-500: #4285f4;
+    --palette-red-500: #e54848;
     /* text / bg */
     --color-text: var(--base-text-primary);
     --color-bg-page: var(--base-bg-page);
