@@ -99,7 +99,7 @@ function SheetCell({ cell, validator }) {
     return (
         <div
             className={`sheet__cell${activeClass}${invalidClass}`}
-            title={isInvalid ? validator.message : false}
+            title={isInvalid ? validator.message : undefined}
             onClick={() => context.setActiveCell(cell)}>
             {isActive
                 ? <input
