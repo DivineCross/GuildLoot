@@ -1,3 +1,5 @@
+import Validator from './validator';
+
 class Sheet {
     constructor(name = '', heads = [], rows = []) {
         /** @type {string} */
@@ -6,6 +8,8 @@ class Sheet {
         this.heads = heads;
         /** @type {Cell[][]} */
         this.rows = rows;
+        /** @type {Validator[]} */
+        this.colValidators = [];
     }
 
     get rowCount() {
