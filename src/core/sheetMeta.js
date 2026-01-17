@@ -29,4 +29,30 @@ function CreateValidator(sheetMap) {
     ];
 }
 
-export { CreateValidator as SetSheetMeta };
+/** @param {Map<string, Sheet>} sheetMap */
+function Calculate(sheetMap) {
+    CreateValidator(sheetMap);
+
+    const lootSheet = sheetMap.get('戰利品');
+    const pocketSheet = sheetMap.get('口袋');
+
+    for (const pocketRow of pocketSheet.rows) {
+        const itemName = pocketRow[0].value;
+        if (!itemName.trim().length)
+            continue;
+
+        for (const [i, pocketCell] of pocketRow.entries()) {
+            if (i === 0)
+                continue;
+
+            const ownerName = pocketSheet.heads[i].value;
+            const count = lootSheet.rows
+                .filter(r => r[3].value === itemName && r[5].value === ownerName)
+                .reduce((acc, r) => acc + Number(r[4].value), 0);
+
+            pocketCell.setValue(count > 0 ? `${count}` : '');
+        }
+    }
+}
+
+export { CreateValidator as SetSheetMeta, Calculate };
