@@ -17,15 +17,15 @@ export default class Validator {
     }
 
     get isByValues() {
-        return [this.validValues].every(x => x !== undefined);
+        return this.hasValues(this.validValues);
     }
 
     get isByDate() {
-        return [this.dateFormat].every(x => x !== undefined);
+        return this.hasValues(this.dateFormat);
     }
 
     get isByIntMinMax() {
-        return [this.min, this.max].every(x => x !== undefined);
+        return this.hasValues(this.min, this.max);
     }
 
     /** @param {Sheet} sheet */
@@ -83,15 +83,21 @@ export default class Validator {
                 && date.getDate() === d);
         }
 
-
         if (this.isByIntMinMax) {
-            const num = /^(?:(?:-?[1-9]\d*)|0)$/.test(str) ? Number(str) : null;
+            if (!/^(?:(?:-?[1-9]\d*)|0)$/.test(str))
+                return false;
 
-            return (num === null || !Number.isSafeInteger(num))
+            const num = Number(str);
+
+            return !Number.isSafeInteger(num)
                 ? false
                 : this.min <= num && num <= this.max;
         }
 
         return false;
+    }
+
+    hasValues(...props) {
+        return props.every(x => x !== undefined);
     }
 }
