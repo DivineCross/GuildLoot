@@ -4,6 +4,8 @@ export default class Validator {
     constructor() {
         /** @type {string[] | undefined} */
         this.validValues = undefined;
+        /** @type {string | undefined} */
+        this.dateFormat = undefined;
         /** @type {number | undefined} */
         this.min = undefined;
         /** @type {number | undefined} */
@@ -18,6 +20,10 @@ export default class Validator {
         return [this.validValues].every(x => x !== undefined);
     }
 
+    get isByDate() {
+        return [this.dateFormat].every(x => x !== undefined);
+    }
+
     get isByIntMinMax() {
         return [this.min, this.max].every(x => x !== undefined);
     }
@@ -27,6 +33,16 @@ export default class Validator {
         const v = new Validator;
         v.validValues = sheet.rows.flatMap(
             row => row.filter(c => !c.isEmpty).map(c => c.value));
+
+        return v;
+    }
+
+    static FromDate(format) {
+        if (format !== 'yyyy/MM/dd')
+            throw new Error('support only yyyy/MM/dd');
+
+        const v = new Validator;
+        v.dateFormat = 'yyyy/MM/dd';
 
         return v;
     }
@@ -46,14 +62,29 @@ export default class Validator {
 
     /** @param {Cell} cell */
     validate(cell) {
+        const str = cell.value;
+
         if (cell.isEmpty)
             return true;
 
         if (this.isByValues)
             return this.validValues.includes(cell.value);
 
+        if (this.isByDate) {
+            if (!/^\d{4}\/\d{2}\/\d{2}$/.test(str))
+                return false;
+
+            const [y, m, d] = str.split('/').map(Number);
+            const date = new Date(y, m - 1, d);
+
+            return (
+                date.getFullYear() === y
+                && date.getMonth() === m - 1
+                && date.getDate() === d);
+        }
+
+
         if (this.isByIntMinMax) {
-            const str = cell.value;
             const num = /^(?:(?:-?[1-9]\d*)|0)$/.test(str) ? Number(str) : null;
 
             return (num === null || !Number.isSafeInteger(num))
