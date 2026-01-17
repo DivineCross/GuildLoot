@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useRef, useState } from 'react';
 import Sheet, { Cell } from '../core/sheet';
+import Validator from '../core/validator';
 
 /**
  * @typedef {Object} SheetContextType
@@ -75,25 +76,30 @@ function SheetBody({ rows = [] }) {
 
 /** @param {{cells: Cell[], isHead: boolean}} */
 function SheetRow({ cells = [], isHead = false }) {
+    const context = useContext(Context);
+    const validators = isHead ? [] : context.sheet.colValidators;
     const headClass = isHead ? ' sheet__head' : '';
 
     return (
         <div className={`sheet__row${headClass}`}>{cells.map((cell, i) =>
-            <SheetCell key={i} cell={cell} />
+            <SheetCell key={i} cell={cell} validator={validators[i]} />
         )}</div>
     );
 }
 
-/** @param {{cell: Cell}} */
-function SheetCell({ cell }) {
+/** @param {{cell: Cell, validator: Validator}} */
+function SheetCell({ cell, validator }) {
     const [value, setValue] = useState(cell.value);
     const context = useContext(Context);
     const isActive = context.activeCell === cell;
     const activeClass = isActive ? ' sheet__cell--active' : '';
+    const isInvalid = validator?.validate(cell) === false;
+    const invalidClass = isInvalid ? ' sheet__cell--invalid' : '';
 
     return (
         <div
-            className={`sheet__cell${activeClass}`}
+            className={`sheet__cell${activeClass}${invalidClass}`}
+            title={isInvalid ? validator.message : false}
             onClick={() => context.setActiveCell(cell)}>
             {isActive
                 ? <input

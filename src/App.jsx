@@ -4,6 +4,7 @@ import SheetEditor from './components/SheetEditor';
 import './App.css';
 
 import Service from './core/service';
+import { SetSheetMeta } from './core/sheetMeta';
 
 const sheetMap = Service.loadData();
 
@@ -11,6 +12,8 @@ export default function App() {
     const sheetNames = [...sheetMap.keys()];
     const [activeName, setActiveName] = useState(sheetNames[0]);
     const onSheetChange = () => Service.saveData(sheetMap);
+
+    SetSheetMeta(sheetMap);
 
     return (
         <div className="app">
