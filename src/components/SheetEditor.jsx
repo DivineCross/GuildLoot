@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useRef, useState } from 'react';
+import React, { createContext, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import Sheet, { Cell } from '../core/sheet';
 import Validator from '../core/validator';
 
@@ -7,35 +7,84 @@ import Validator from '../core/validator';
  * @property {Sheet} sheet
  * @property {Cell} activeCell
  * @property {(cell: Cell) => void} setActiveCell
- * @property {(value: string) => void} onCellChange
- * @property {() => void} onSheetChange
+ * @property {(action: ReducerAction) => void} dispatch
  */
 /** @type {React.Context<SheetContextType> | null} */
 const Context = createContext(null);
 
-/** @param {{sheet: Sheet, onSheetChange: () => void}} */
-export default function SheetEditor({ sheet, onSheetChange }) {
+const ActionType = Object.freeze({
+    AddRow: 'AddRow',
+    UpdateCell: 'UpdateCell',
+});
+
+/**
+ * @typedef {Object} ReducerAction
+ * @property {string} type
+ * @property {Cell} targetCell
+ * @property {string} cellValue
+ */
+
+/**
+ * @param {Sheet} sheet
+ * @param {ReducerAction} action
+ * @param {(sheet: Sheet) => Sheet} calculateSheet
+ */
+function reducer(sheet, action, calculateSheet) {
+    const newSheet = new Sheet(sheet.name, sheet.heads, sheet.rows);
+
+    switch (action.type) {
+        case ActionType.AddRow: {
+            newSheet.addRow();
+
+            return newSheet;
+        }
+        case ActionType.UpdateCell: {
+            for (const row of [newSheet.heads, ...newSheet.rows])
+                for (const [c, cell] of row.entries())
+                    if (cell === action.targetCell)
+                        row[c] = new Cell(action.cellValue);
+
+            return calculateSheet(newSheet);
+        }
+        default:
+            return sheet;
+    }
+}
+
+/**
+ * @param {{
+ *  sheet: Sheet,
+ *  calculateSheet: (sheet: Sheet) => Sheet,
+ *  onSheetChange: (sheet: Sheet) => void,
+ * }}
+ */
+export default function SheetEditor({ sheet, calculateSheet, onSheetChange }) {
     const [activeCell, setActiveCell] = useState(new Cell);
-    const [_, setLocalSheet] = useState(sheet);
+    const [localSheet, dispatch] = useReducer((s, a) => reducer(s, a, calculateSheet), sheet);
+    const isMountedRef = useRef(false);
     const editorRef = useRef(null);
+
+    useEffect(() => {
+        if (!isMountedRef.current)
+            return void (isMountedRef.current = true);
+
+        onSheetChange(localSheet);
+    }, [localSheet, onSheetChange]);
 
     /** @type {SheetContextType} */
     const context = {
-        sheet,
+        sheet: localSheet,
         activeCell,
         setActiveCell,
-        onCellChange: v => activeCell.setValue(v),
-        onSheetChange,
+        dispatch,
     };
 
-    const heads = sheet.heads;
+    const heads = localSheet.heads;
     const colCount = heads.length;
     const gridStyle = { gridTemplateColumns: `repeat(${colCount}, max-content)` };
 
     const handleAddRow = () => {
-        sheet.addRow();
-        onSheetChange();
-        setLocalSheet(Sheet.fromObject(sheet));
+        dispatch({ type: ActionType.AddRow });
 
         requestAnimationFrame(() => {
             if (editorRef.current)
@@ -48,7 +97,7 @@ export default function SheetEditor({ sheet, onSheetChange }) {
             <div className="sheet-editor" ref={editorRef}>
                 <div className="sheet__grid" style={gridStyle}>
                     <SheetHead cells={heads} />
-                    <SheetBody rows={sheet.rows} />
+                    <SheetBody rows={localSheet.rows} />
                 </div>
                 <div className="sheet__toolbar">
                     <button onClick={handleAddRow}>
@@ -107,8 +156,11 @@ function SheetCell({ cell, validator }) {
                     onMouseDown={e => e.detail > 1 ? e.preventDefault() : undefined}
                     onChange={e => setValue(e.target.value)}
                     onBlur={e => {
-                        context.onCellChange(e.target.value);
-                        context.onSheetChange();
+                        context.dispatch({
+                            type: ActionType.UpdateCell,
+                            targetCell: cell,
+                            cellValue: e.target.value,
+                        });
                     }} />
                 : cell.value}
         </div>
