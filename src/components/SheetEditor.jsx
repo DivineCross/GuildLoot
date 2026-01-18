@@ -110,7 +110,7 @@ function SheetCell({ cell, validator }) {
                         context.onCellChange(e.target.value);
                         context.onSheetChange();
                     }} />
-                : value}
+                : cell.value}
         </div>
     );
 }
