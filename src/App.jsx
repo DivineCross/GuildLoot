@@ -9,10 +9,13 @@ import { Calculate } from './core/calculator';
 const sheetMap = Service.loadData();
 Calculate(sheetMap);
 
+const onSheetChange = () => {
+    Service.saveData(sheetMap);
+};
+
 export default function App() {
     const sheetNames = [...sheetMap.keys()];
     const [activeName, setActiveName] = useState(sheetNames[0]);
-    const onSheetChange = () => Service.saveData(sheetMap);
 
     return (
         <div className="app">
