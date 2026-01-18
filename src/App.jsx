@@ -7,13 +7,12 @@ import Service from './core/service';
 import { Calculate } from './core/calculator';
 
 const sheetMap = Service.loadData();
+Calculate(sheetMap);
 
 export default function App() {
     const sheetNames = [...sheetMap.keys()];
     const [activeName, setActiveName] = useState(sheetNames[0]);
     const onSheetChange = () => Service.saveData(sheetMap);
-
-    Calculate(sheetMap);
 
     return (
         <div className="app">
