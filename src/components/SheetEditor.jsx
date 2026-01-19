@@ -43,7 +43,7 @@ function reducer(sheet, action, calculateSheet) {
             return newSheet;
         }
         case ActionType.UpdateCell: {
-            for (const row of [newSheet.heads, ...newSheet.rows])
+            for (const row of newSheet.allRows)
                 for (const [c, cell] of row.entries())
                     if (cell === action.targetCell)
                         row[c] = new Cell(action.cellValue);
