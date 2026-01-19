@@ -1,15 +1,21 @@
 import Sheet, { Cell } from './sheet';
 
 export default class Validator {
-    constructor() {
-        /** @type {string[] | undefined} */
-        this.validValues = undefined;
-        /** @type {string | undefined} */
-        this.dateFormat = undefined;
-        /** @type {number | undefined} */
-        this.min = undefined;
-        /** @type {number | undefined} */
-        this.max = undefined;
+    /**
+     * @param {{
+     *  validValues?: string[]
+     *  dateFormat?: string
+     *  min?: number
+     *  max?: number
+     * }}
+     */
+    constructor({ validValues, dateFormat, min, max } = {}) {
+        this.validValues = validValues ? Object.freeze([...validValues]) : undefined;
+        this.dateFormat = dateFormat;
+        this.min = min;
+        this.max = max;
+
+        Object.freeze(this);
     }
 
     get message() {
@@ -28,23 +34,24 @@ export default class Validator {
         return this.hasValues(this.min, this.max);
     }
 
-    /** @param {Sheet} sheet */
-    static FromSheet(sheet) {
-        const v = new Validator;
-        v.validValues = sheet.rows.flatMap(
-            row => row.filter(c => !c.isEmpty).map(c => c.value));
-
-        return v;
+    static FromObject(obj) {
+        return new Validator(obj || {});
     }
 
-    static FromDate(format) {
-        if (format !== 'yyyy/MM/dd')
+    /** @param {Sheet} sheet */
+    static FromSheet(sheet) {
+        return new Validator({
+            validValues: sheet.rows.flatMap(
+                row => row.filter(c => !c.isEmpty).map(c => c.value))
+        });
+    }
+
+    static FromDate(dateFormat) {
+        if (dateFormat !== 'yyyy/MM/dd')
             throw new Error('support only yyyy/MM/dd');
 
-        const v = new Validator;
-        v.dateFormat = 'yyyy/MM/dd';
+        return new Validator({ dateFormat });
 
-        return v;
     }
 
     static FromIntMinMax(min, max) {
@@ -53,11 +60,7 @@ export default class Validator {
         if (min > max)
             throw new Error('min should be less than max');
 
-        const v = new Validator;
-        v.min = min;
-        v.max = max;
-
-        return v;
+        return new Validator({ min, max });
     }
 
     /** @param {Cell} cell */
