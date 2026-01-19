@@ -58,9 +58,9 @@ function reducer(sheet, action, calculateSheet) {
  *  onSheetChange: (sheet: Sheet) => void,
  * }}
  */
-export default function SheetEditor({ sheet, calculateSheet, onSheetChange }) {
+export default function SheetEditor({ sheet: propSheet, calculateSheet, onSheetChange }) {
     const [activeCell, setActiveCell] = useState(new Cell);
-    const [localSheet, dispatch] = useReducer((s, a) => reducer(s, a, calculateSheet), sheet);
+    const [sheet, dispatch] = useReducer((s, a) => reducer(s, a, calculateSheet), propSheet);
     const isMountedRef = useRef(false);
     const editorRef = useRef(null);
 
@@ -68,20 +68,8 @@ export default function SheetEditor({ sheet, calculateSheet, onSheetChange }) {
         if (!isMountedRef.current)
             return void (isMountedRef.current = true);
 
-        onSheetChange(localSheet);
-    }, [localSheet, onSheetChange]);
-
-    /** @type {SheetContextType} */
-    const context = {
-        sheet: localSheet,
-        activeCell,
-        setActiveCell,
-        dispatch,
-    };
-
-    const heads = localSheet.heads;
-    const colCount = heads.length;
-    const gridStyle = { gridTemplateColumns: `repeat(${colCount}, max-content)` };
+        onSheetChange(sheet);
+    }, [sheet, onSheetChange]);
 
     const handleAddRow = () => {
         dispatch({ type: ActionType.AddRow });
@@ -92,12 +80,23 @@ export default function SheetEditor({ sheet, calculateSheet, onSheetChange }) {
         });
     };
 
+    /** @type {SheetContextType} */
+    const context = {
+        sheet: sheet,
+        activeCell,
+        setActiveCell,
+        dispatch,
+    };
+
+    const gridStyle = { gridTemplateColumns: `repeat(${sheet.colCount}, max-content)` };
+
     return (
         <Context.Provider value={context}>
             <div className="sheet-editor" ref={editorRef}>
                 <div className="sheet__grid" style={gridStyle}>
-                    <SheetHead cells={heads} />
-                    <SheetBody rows={localSheet.rows} />
+                    <SheetRow key="head" cells={sheet.heads} isHead={true} />
+                    {sheet.rows.map((row, i) =>
+                        <SheetRow key={i} cells={row} />)}
                 </div>
                 <div className="sheet__toolbar">
                     <button onClick={handleAddRow}>
@@ -108,20 +107,6 @@ export default function SheetEditor({ sheet, calculateSheet, onSheetChange }) {
         </Context.Provider>
     );
 };
-
-/** @param {{cells: Cell[]}} */
-function SheetHead({ cells = [] }) {
-    return (
-        <SheetRow cells={cells} isHead={true} />
-    );
-}
-
-/** @param {{rows: Cell[][]}} */
-function SheetBody({ rows = [] }) {
-    return rows.map((row, i) =>
-        <SheetRow key={i} cells={row} />
-    );
-}
 
 /** @param {{cells: Cell[], isHead: boolean}} */
 function SheetRow({ cells = [], isHead = false }) {
