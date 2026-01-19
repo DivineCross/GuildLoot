@@ -127,12 +127,29 @@ function SheetRow({ cells = [], isHead = false }) {
 
 /** @param {{cell: Cell, validator: Validator}} */
 function SheetCell({ cell, validator }) {
-    const [value, setValue] = useState(cell.value);
     const context = useContext(Context);
     const isActive = context.activeCell === cell;
     const activeClass = isActive ? ' sheet__cell--active' : '';
     const isInvalid = validator?.validate(cell) === false;
     const invalidClass = isInvalid ? ' sheet__cell--invalid' : '';
+
+    const inputRef = useRef();
+    useEffect(() => {
+        /** @type {HTMLInputElement} */
+        const input = inputRef.current;
+        if (!input)
+            return;
+
+        const handler = e => context.dispatch({
+            type: ActionType.UpdateCell,
+            targetCell: cell,
+            cellValue: e.target.value,
+        });
+
+        input.addEventListener('change', handler);
+
+        return () => input.removeEventListener('change', handler);
+    }, [context, cell]);
 
     return (
         <div
@@ -141,16 +158,9 @@ function SheetCell({ cell, validator }) {
             onClick={() => context.setActiveCell(cell)}>
             {isActive
                 ? <input
-                    value={value}
-                    onMouseDown={e => e.detail > 1 ? e.preventDefault() : undefined}
-                    onChange={e => setValue(e.target.value)}
-                    onBlur={e => {
-                        context.dispatch({
-                            type: ActionType.UpdateCell,
-                            targetCell: cell,
-                            cellValue: e.target.value,
-                        });
-                    }} />
+                    ref={inputRef}
+                    defaultValue={cell.value}
+                    onMouseDown={e => e.detail > 1 ? e.preventDefault() : undefined} />
                 : cell.value}
         </div>
     );
