@@ -23,6 +23,7 @@ const onSheetChange = sheet => {
 export default function App() {
     const sheetNames = [...sheetMap.keys()];
     const [activeName, setActiveName] = useState(sheetNames[0]);
+    const sheet = calculateSheet(sheetMap.get(activeName));
 
     return (
         <div className="app">
@@ -32,7 +33,7 @@ export default function App() {
                 onSelect={setActiveName} />
             <SheetEditor
                 key={activeName}
-                sheet={sheetMap.get(activeName)}
+                sheet={sheet}
                 calculateSheet={calculateSheet}
                 onSheetChange={onSheetChange} />
         </div>
