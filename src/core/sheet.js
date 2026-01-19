@@ -20,6 +20,10 @@ class Sheet {
         return this.heads.length;
     }
 
+    get allRows() {
+        return [this.heads, ...this.rows];
+    }
+
     static fromObject({ name = '', heads = [], rows = [], colValidators = [] } = {}) {
         return new Sheet(
             name,
