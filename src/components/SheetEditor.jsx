@@ -30,7 +30,11 @@ const ActionType = Object.freeze({
  * @param {(sheet: Sheet) => Sheet} calculateSheet
  */
 function reducer(sheet, action, calculateSheet) {
-    const newSheet = new Sheet(sheet.name, [...sheet.heads], [...sheet.rows]);
+    const newSheet = new Sheet(
+        sheet.name,
+        [...sheet.heads],
+        [...sheet.rows],
+        [...sheet.colValidators]);
 
     switch (action.type) {
         case ActionType.AddRow: {
