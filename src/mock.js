@@ -226,6 +226,8 @@ const pocketSheet = Sheet.fromPaste('口袋', `
 符石耳環
 艾特利項鍊
 絲卡蒂項鍊
+紫防圖樣
+寄生魔棒
 `);
 
 const itemSheet = Sheet.fromPaste('道具', `
