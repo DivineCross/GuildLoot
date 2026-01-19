@@ -1,7 +1,7 @@
 import Validator from './validator';
 
 class Sheet {
-    constructor(name = '', heads = [], rows = []) {
+    constructor(name = '', heads = [], rows = [], colValidators = []) {
         /** @type {string} */
         this.name = name;
         /** @type {Cell[]} */
@@ -9,7 +9,7 @@ class Sheet {
         /** @type {Cell[][]} */
         this.rows = rows;
         /** @type {Validator[]} */
-        this.colValidators = [];
+        this.colValidators = colValidators;
     }
 
     get rowCount() {
@@ -20,11 +20,13 @@ class Sheet {
         return this.heads.length;
     }
 
-    static fromObject({ name = '', heads = [], rows = [] } = {}) {
+    static fromObject({ name = '', heads = [], rows = [], colValidators = [] } = {}) {
         return new Sheet(
             name,
             heads.map(Cell.fromObject),
-            rows.map(row => row.map(Cell.fromObject)));
+            rows.map(row => row.map(Cell.fromObject)),
+            colValidators.map(Validator.fromObject),
+        );
     }
 
     static fromPaste(name = '', content = '') {
