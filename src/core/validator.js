@@ -34,19 +34,19 @@ export default class Validator {
         return this.hasValues(this.min, this.max);
     }
 
-    static FromObject(obj) {
+    static fromObject(obj) {
         return new Validator(obj || {});
     }
 
     /** @param {Sheet} sheet */
-    static FromSheet(sheet) {
+    static fromSheet(sheet) {
         return new Validator({
             validValues: sheet.rows.flatMap(
                 row => row.filter(c => !c.isEmpty).map(c => c.value))
         });
     }
 
-    static FromDate(dateFormat) {
+    static fromDate(dateFormat) {
         if (dateFormat !== 'yyyy/MM/dd')
             throw new Error('support only yyyy/MM/dd');
 
@@ -54,7 +54,7 @@ export default class Validator {
 
     }
 
-    static FromIntMinMax(min, max) {
+    static fromIntMinMax(min, max) {
         if (!(Number.isSafeInteger(min) && Number.isSafeInteger(max)))
             throw new Error('min and max should be integer');
         if (min > max)
