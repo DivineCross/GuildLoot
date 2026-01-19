@@ -63,9 +63,20 @@ function CalculateSheet(sheet, sheetMap) {
                     const ownerName = newSheet.heads[c].value;
                     const count = lootSheet.rows
                         .filter(r => r[3].value === itemName && r[5].value === ownerName)
-                        .reduce((acc, r) => acc + Number(r[4].value), 0);
+                        .reduce((acc, r) => {
+                            if (!Number.isInteger(acc))
+                                return NaN;
 
-                    row[c] = new Cell(count > 0 ? `${count}` : '');
+                            const num = parseInt(r[4].value);
+                            if (!Number.isInteger(num))
+                                return NaN;
+
+                            return acc + num;
+                        }, 0);
+
+                    row[c] = new Cell(Number.isInteger(count)
+                        ? count > 0 ? `${count}` : ''
+                        : '#ERROR');
                 }
             }
 
@@ -74,6 +85,15 @@ function CalculateSheet(sheet, sheetMap) {
         default:
             return newSheet;
     }
+}
+
+function parseInt(str = '') {
+    if (!/^(?:(?:-?[1-9]\d*)|0)$/.test(str))
+        return NaN;
+
+    const num = Number(str);
+
+    return Number.isSafeInteger(num) ? num : NaN;
 }
 
 export { Calculate, CalculateSheet };
