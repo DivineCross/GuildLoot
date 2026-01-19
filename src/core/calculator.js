@@ -1,58 +1,79 @@
 import Validator from './validator';
-import Sheet from './sheet';
+import Sheet, { Cell } from './sheet';
 
-/** @param {Map<string, Sheet>} sheetMap */
-function CreateValidator(sheetMap) {
-    sheetMap.get('戰利品').colValidators = [
-        Validator.fromDate('yyyy/MM/dd'),
-        Validator.fromSheet(sheetMap.get('頭目')),
-        Validator.fromSheet(sheetMap.get('成員')),
-        Validator.fromSheet(sheetMap.get('道具')),
-        Validator.fromIntMinMax(1, 99),
-        Validator.fromSheet(sheetMap.get('成員')),
-        Validator.fromIntMinMax(1, 99),
-        null,
-    ];
-    sheetMap.get('交易所').colValidators = [
-        Validator.fromDate('yyyy/MM/dd'),
-        Validator.fromSheet(sheetMap.get('道具')),
-        Validator.fromIntMinMax(1, 99),
-        Validator.fromIntMinMax(0, 100000),
-        Validator.fromSheet(sheetMap.get('成員')),
-        null,
-    ];
-    sheetMap.get('口袋').colValidators = [
-        Validator.fromSheet(sheetMap.get('道具')),
-    ];
-    sheetMap.get('成員').colValidators = [
-        Validator.fromDate('yyyy/MM/dd'),
-    ];
+/** @param {Sheet} sheet @param {Map<string, Sheet>} sheetMap @returns {Validator[]} */
+function CreateValidators(sheet, sheetMap) {
+    switch (sheet.name) {
+        case '戰利品': return [
+            Validator.fromDate('yyyy/MM/dd'),
+            Validator.fromSheet(sheetMap.get('頭目')),
+            Validator.fromSheet(sheetMap.get('成員')),
+            Validator.fromSheet(sheetMap.get('道具')),
+            Validator.fromIntMinMax(1, 99),
+            Validator.fromSheet(sheetMap.get('成員')),
+            Validator.fromIntMinMax(1, 99),
+            null,
+        ];
+        case ('交易所'): return [
+            Validator.fromDate('yyyy/MM/dd'),
+            Validator.fromSheet(sheetMap.get('道具')),
+            Validator.fromIntMinMax(1, 99),
+            Validator.fromIntMinMax(0, 100000),
+            Validator.fromSheet(sheetMap.get('成員')),
+            null,
+        ];
+        case ('口袋'): return [
+            Validator.fromSheet(sheetMap.get('道具')),
+        ];
+        case ('成員'): return [
+            Validator.fromDate('yyyy/MM/dd'),
+        ];
+        default: return [
+        ];
+    }
 }
 
 /** @param {Map<string, Sheet>} sheetMap */
 function Calculate(sheetMap) {
-    CreateValidator(sheetMap);
+    for (const [name, sheet] of sheetMap)
+        sheetMap.set(name, CalculateSheet(sheet, sheetMap));
 
-    const lootSheet = sheetMap.get('戰利品');
-    const pocketSheet = sheetMap.get('口袋');
+    return sheetMap;
+}
 
-    for (const pocketRow of pocketSheet.rows) {
-        const itemName = pocketRow[0].value;
-        if (!itemName.trim().length)
-            continue;
+/** @param {Sheet} sheet @param {Map<string, Sheet>} sheetMap */
+function CalculateSheet(sheet, sheetMap) {
+    const newSheet = new Sheet(
+        sheet.name, sheet.heads, sheet.rows, CreateValidators(sheet, sheetMap));
 
-        for (const [i, pocketCell] of pocketRow.entries()) {
-            if (i === 0)
-                continue;
+    switch (newSheet.name) {
+        case '口袋': {
+            const lootSheet = sheetMap.get('戰利品');
+            newSheet.rows = sheet.rows.map(r => r.map(Cell.fromObject));
 
-            const ownerName = pocketSheet.heads[i].value;
-            const count = lootSheet.rows
-                .filter(r => r[3].value === itemName && r[5].value === ownerName)
-                .reduce((acc, r) => acc + Number(r[4].value), 0);
+            for (const row of newSheet.rows) {
+                const itemName = row[0].value;
+                if (!itemName.trim().length)
+                    continue;
 
-            pocketCell.setValue(count > 0 ? `${count}` : '');
+                for (const [c, _] of row.entries()) {
+                    if (c === 0)
+                        continue;
+
+                    const ownerName = newSheet.heads[c].value;
+                    const count = lootSheet.rows
+                        .filter(r => r[3].value === itemName && r[5].value === ownerName)
+                        .reduce((acc, r) => acc + Number(r[4].value), 0);
+
+                    row[c] = new Cell(count > 0 ? `${count}` : '');
+                }
+            }
+
+            return newSheet;
         }
+        default:
+            return newSheet;
     }
 }
 
-export { Calculate };
+export { Calculate, CalculateSheet };
