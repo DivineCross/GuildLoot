@@ -157,10 +157,13 @@ function SheetCell({ cell, validator }) {
             title={isInvalid ? validator.message : undefined}
             onClick={() => context.setActiveCell(cell)}>
             {isActive
-                ? <input
-                    ref={inputRef}
-                    defaultValue={cell.value}
-                    onMouseDown={e => e.detail > 1 ? e.preventDefault() : undefined} />
+                ? <>
+                    <input
+                        ref={inputRef}
+                        defaultValue={cell.value}
+                        onMouseDown={e => e.detail > 1 ? e.preventDefault() : undefined} />
+                    <span>{cell.value}</span>
+                </>
                 : cell.value}
         </div>
     );
