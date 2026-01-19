@@ -4,22 +4,19 @@ import SheetEditor from './components/SheetEditor';
 import './App.css';
 
 import Service from './core/service';
-import { Calculate } from './core/calculator';
+import { Calculate, CalculateSheet } from './core/calculator';
 import Sheet from './core/sheet';
 
-const sheetMap = Service.loadData();
-Calculate(sheetMap);
+const sheetMap = Calculate(Service.loadData());
 
 /** @param {Sheet} sheet */
 const calculateSheet = sheet => {
-    const name = sheet.name;
-    sheetMap.set(name, sheet);
-    Calculate(sheetMap);
-
-    return sheetMap.get(name);
+    return CalculateSheet(sheet, sheetMap);
 };
 
-const onSheetChange = () => {
+/** @param {Sheet} sheet */
+const onSheetChange = sheet => {
+    sheetMap.set(sheet.name, sheet);
     Service.saveData(sheetMap);
 };
 
