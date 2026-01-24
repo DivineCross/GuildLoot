@@ -103,7 +103,7 @@ function SheetCell({ cell, validator }) {
     useEffect(() => {
         /** @type {HTMLInputElement} */
         const input = inputRef.current;
-        if (!input)
+        if (!input || !isActive)
             return;
 
         const handler = e => context.dispatch({
@@ -115,7 +115,7 @@ function SheetCell({ cell, validator }) {
         input.addEventListener('change', handler);
 
         return () => input.removeEventListener('change', handler);
-    }, [context, cell]);
+    }, [context, cell, isActive]);
 
     return (
         <div
