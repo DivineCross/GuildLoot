@@ -10,9 +10,18 @@ import Sheet, { Cell } from './sheet';
  */
 
 const ActionType = Object.freeze({
+    Calculate: 'Calculate',
     AddRow: 'AddRow',
     UpdateCell: 'UpdateCell',
 });
+
+/** @param {Map<string, Sheet>} sheetMap */
+function reduceMap(sheetMap) {
+    for (const [name, sheet] of sheetMap)
+        sheetMap.set(name, calculateSheet(sheet, sheetMap));
+
+    return sheetMap;
+}
 
 /** @param {Sheet} sheet @param {ReducerAction} action */
 function reducer(sheet, action) {
@@ -23,6 +32,9 @@ function reducer(sheet, action) {
         [...sheet.colValidators]);
 
     switch (action.type) {
+        case ActionType.Calculate: {
+            return calculateSheet(sheet, action.sheetMap);
+        }
         case ActionType.AddRow: {
             newSheet.addRow();
 
@@ -71,14 +83,6 @@ function createValidators(sheet, sheetMap) {
         default: return [
         ];
     }
-}
-
-/** @param {Map<string, Sheet>} sheetMap */
-function calculate(sheetMap) {
-    for (const [name, sheet] of sheetMap)
-        sheetMap.set(name, calculateSheet(sheet, sheetMap));
-
-    return sheetMap;
 }
 
 /** @param {Sheet} sheet @param {Map<string, Sheet>} sheetMap */
@@ -136,4 +140,4 @@ function parseInt(str = '') {
     return Number.isSafeInteger(num) ? num : NaN;
 }
 
-export { calculate, calculateSheet, reducer, ActionType };
+export { ActionType, reducer, reduceMap };

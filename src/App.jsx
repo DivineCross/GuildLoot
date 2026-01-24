@@ -4,13 +4,13 @@ import SheetEditor from './components/SheetEditor';
 import './App.css';
 
 import Service from './core/service';
-import { calculate, calculateSheet, reducer } from './core/reducer';
+import { ActionType, reducer, reduceMap } from './core/reducer';
 import Sheet from './core/sheet';
 
-const sheetMap = calculate(Service.loadData());
+const sheetMap = reduceMap(Service.loadData());
 
 const sheetReducer = (sheet, action) => {
-    return reducer(sheet, {...action, sheetMap: sheetMap});
+    return reducer(sheet, { ...action, sheetMap: sheetMap });
 };
 
 /** @param {Sheet} sheet */
@@ -22,7 +22,7 @@ const onSheetChange = sheet => {
 export default function App() {
     const sheetNames = [...sheetMap.keys()];
     const [activeName, setActiveName] = useState(sheetNames[0]);
-    const sheet = calculateSheet(sheetMap.get(activeName), sheetMap);
+    const sheet = sheetReducer(sheetMap.get(activeName), { type: ActionType.Calculate });
 
     return (
         <div className="app">
