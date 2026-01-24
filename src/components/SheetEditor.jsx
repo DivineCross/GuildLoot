@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useReducer, useRef, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import Sheet, { Cell } from '../core/sheet';
 import Validator from '../core/validator';
 import { ActionType } from '../core/reducer';
@@ -15,11 +15,17 @@ import { ActionType } from '../core/reducer';
  * @typedef {Object} SheetContextType
  * @property {Sheet} sheet
  * @property {Cell} activeCell
+ */
+/** @type {React.Context<SheetContextType> | null} */
+const SheetContext = createContext(null);
+
+/**
+ * @typedef {Object} DispatchContextType
  * @property {(cell: Cell) => void} setActiveCell
  * @property {(action: ReducerAction) => void} dispatch
  */
-/** @type {React.Context<SheetContextType> | null} */
-const Context = createContext(null);
+/** @type {React.Context<DispatchContextType> | null} */
+const DispatchContext = createContext(null);
 
 /**
  * @param {{
@@ -42,15 +48,19 @@ export default function SheetEditor({ sheet: propSheet, reducer, onSheetChange }
     }, [sheet, onSheetChange]);
 
     /** @type {SheetContextType} */
-    const context = {
+    const sheetContext = {
         sheet: sheet,
         activeCell,
-        setActiveCell,
-        dispatch,
     };
 
+    /** @type {DispatchContextType} */
+    const dispatchContext = useMemo(() => ({
+        setActiveCell,
+        dispatch,
+    }), [setActiveCell, dispatch]);
+
     const handleAddRow = () => {
-        context.dispatch({ type: ActionType.AddRow });
+        dispatchContext.dispatch({ type: ActionType.AddRow });
 
         requestAnimationFrame(() => {
             if (editorRef.current)
@@ -61,27 +71,29 @@ export default function SheetEditor({ sheet: propSheet, reducer, onSheetChange }
     const gridStyle = { gridTemplateColumns: `repeat(${sheet.colCount}, max-content)` };
 
     return (
-        <Context.Provider value={context}>
-            <div className="sheet-editor" ref={editorRef}>
-                <div className="sheet__grid" style={gridStyle}>
-                    <SheetRow key="head" cells={sheet.heads} isHead={true} />
-                    {sheet.rows.map((row, i) =>
-                        <SheetRow key={i} cells={row} />)}
+        <SheetContext.Provider value={sheetContext}>
+            <DispatchContext.Provider value={dispatchContext}>
+                <div className="sheet-editor" ref={editorRef}>
+                    <div className="sheet__grid" style={gridStyle}>
+                        <SheetRow key="head" cells={sheet.heads} isHead={true} />
+                        {sheet.rows.map((row, i) =>
+                            <SheetRow key={i} cells={row} />)}
+                    </div>
+                    <div className="sheet__toolbar">
+                        <button onClick={handleAddRow}>
+                            ＋ 新增列
+                        </button>
+                    </div>
                 </div>
-                <div className="sheet__toolbar">
-                    <button onClick={handleAddRow}>
-                        ＋ 新增列
-                    </button>
-                </div>
-            </div>
-        </Context.Provider>
+            </DispatchContext.Provider>
+        </SheetContext.Provider>
     );
 };
 
 /** @param {{cells: Cell[], isHead: boolean}} */
 function SheetRow({ cells = [], isHead = false }) {
-    const context = useContext(Context);
-    const validators = isHead ? [] : context.sheet.colValidators;
+    const sheetContext = useContext(SheetContext);
+    const validators = isHead ? [] : sheetContext.sheet.colValidators;
     const headClass = isHead ? ' sheet__head' : '';
 
     return (
@@ -93,8 +105,9 @@ function SheetRow({ cells = [], isHead = false }) {
 
 /** @param {{cell: Cell, validator: Validator}} */
 function SheetCell({ cell, validator }) {
-    const context = useContext(Context);
-    const isActive = context.activeCell === cell;
+    const sheetContext = useContext(SheetContext);
+    const dispatchContext = useContext(DispatchContext);
+    const isActive = sheetContext.activeCell === cell;
     const activeClass = isActive ? ' sheet__cell--active' : '';
     const isInvalid = validator?.validate(cell) === false;
     const invalidClass = isInvalid ? ' sheet__cell--invalid' : '';
@@ -106,7 +119,7 @@ function SheetCell({ cell, validator }) {
         if (!input || !isActive)
             return;
 
-        const handler = e => context.dispatch({
+        const handler = e => dispatchContext.dispatch({
             type: ActionType.UpdateCell,
             targetCell: cell,
             cellValue: e.target.value,
@@ -115,13 +128,13 @@ function SheetCell({ cell, validator }) {
         input.addEventListener('change', handler);
 
         return () => input.removeEventListener('change', handler);
-    }, [context, cell, isActive]);
+    }, [dispatchContext, cell, isActive]);
 
     return (
         <div
             className={`sheet__cell${activeClass}${invalidClass}`}
             title={isInvalid ? validator.message : undefined}
-            onClick={() => context.setActiveCell(cell)}>
+            onClick={() => dispatchContext.setActiveCell(cell)}>
             {isActive
                 ? <>
                     <input
