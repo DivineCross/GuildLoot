@@ -97,15 +97,14 @@ function calculateSheet(sheet, sheetMap) {
 
             for (const row of newSheet.rows) {
                 const itemName = row[0].value;
-                if (!itemName.trim().length)
-                    continue;
+                const isEmptyItemName = !itemName.trim().length;
 
                 for (const [c, _] of row.entries()) {
                     if (c === 0)
                         continue;
 
                     const ownerName = newSheet.heads[c].value;
-                    const count = lootSheet.rows
+                    const count = isEmptyItemName ? 0 : lootSheet.rows
                         .filter(r => r[3].value === itemName && r[5].value === ownerName)
                         .reduce((acc, r) => {
                             if (!Number.isInteger(acc))
