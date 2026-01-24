@@ -34,7 +34,7 @@ function reducer(sheet, action) {
                     if (cell === action.targetCell)
                         row[c] = new Cell(action.cellValue);
 
-            return CalculateSheet(newSheet, action.sheetMap);
+            return calculateSheet(newSheet, action.sheetMap);
         }
         default:
             return sheet;
@@ -42,7 +42,7 @@ function reducer(sheet, action) {
 }
 
 /** @param {Sheet} sheet @param {Map<string, Sheet>} sheetMap @returns {Validator[]} */
-function CreateValidators(sheet, sheetMap) {
+function createValidators(sheet, sheetMap) {
     switch (sheet.name) {
         case '戰利品': return [
             Validator.fromDate('yyyy/MM/dd'),
@@ -74,17 +74,17 @@ function CreateValidators(sheet, sheetMap) {
 }
 
 /** @param {Map<string, Sheet>} sheetMap */
-function Calculate(sheetMap) {
+function calculate(sheetMap) {
     for (const [name, sheet] of sheetMap)
-        sheetMap.set(name, CalculateSheet(sheet, sheetMap));
+        sheetMap.set(name, calculateSheet(sheet, sheetMap));
 
     return sheetMap;
 }
 
 /** @param {Sheet} sheet @param {Map<string, Sheet>} sheetMap */
-function CalculateSheet(sheet, sheetMap) {
+function calculateSheet(sheet, sheetMap) {
     const newSheet = new Sheet(
-        sheet.name, sheet.heads, sheet.rows, CreateValidators(sheet, sheetMap));
+        sheet.name, sheet.heads, sheet.rows, createValidators(sheet, sheetMap));
 
     switch (newSheet.name) {
         case '口袋': {
@@ -136,4 +136,4 @@ function parseInt(str = '') {
     return Number.isSafeInteger(num) ? num : NaN;
 }
 
-export { Calculate, CalculateSheet, reducer, ActionType };
+export { calculate, calculateSheet, reducer, ActionType };
