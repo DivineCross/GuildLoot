@@ -1,6 +1,15 @@
 import React, { createContext, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import Sheet, { Cell } from '../core/sheet';
 import Validator from '../core/validator';
+import { ActionType } from '../core/reducer';
+
+/**
+ * @typedef {Object} ReducerAction
+ * @property {string} type
+ * @property {Map<string, Sheet>} sheetMap
+ * @property {Cell} targetCell
+ * @property {string} cellValue
+ */
 
 /**
  * @typedef {Object} SheetContextType
@@ -12,59 +21,16 @@ import Validator from '../core/validator';
 /** @type {React.Context<SheetContextType> | null} */
 const Context = createContext(null);
 
-const ActionType = Object.freeze({
-    AddRow: 'AddRow',
-    UpdateCell: 'UpdateCell',
-});
-
-/**
- * @typedef {Object} ReducerAction
- * @property {string} type
- * @property {Cell} targetCell
- * @property {string} cellValue
- */
-
-/**
- * @param {Sheet} sheet
- * @param {ReducerAction} action
- * @param {(sheet: Sheet) => Sheet} calculateSheet
- */
-function reducer(sheet, action, calculateSheet) {
-    const newSheet = new Sheet(
-        sheet.name,
-        [...sheet.heads],
-        [...sheet.rows],
-        [...sheet.colValidators]);
-
-    switch (action.type) {
-        case ActionType.AddRow: {
-            newSheet.addRow();
-
-            return newSheet;
-        }
-        case ActionType.UpdateCell: {
-            for (const row of newSheet.allRows)
-                for (const [c, cell] of row.entries())
-                    if (cell === action.targetCell)
-                        row[c] = new Cell(action.cellValue);
-
-            return calculateSheet(newSheet);
-        }
-        default:
-            return sheet;
-    }
-}
-
 /**
  * @param {{
- *  sheet: Sheet,
- *  calculateSheet: (sheet: Sheet) => Sheet,
- *  onSheetChange: (sheet: Sheet) => void,
+ *  sheet: Sheet
+ *  reducer: (sheet: Sheet, action: ReducerAction) => Sheet
+ *  onSheetChange: (sheet: Sheet) => void
  * }}
  */
-export default function SheetEditor({ sheet: propSheet, calculateSheet, onSheetChange }) {
+export default function SheetEditor({ sheet: propSheet, reducer, onSheetChange }) {
     const [activeCell, setActiveCell] = useState(new Cell);
-    const [sheet, dispatch] = useReducer((s, a) => reducer(s, a, calculateSheet), propSheet);
+    const [sheet, dispatch] = useReducer(reducer, propSheet);
     const isMountedRef = useRef(false);
     const editorRef = useRef(null);
 
@@ -75,21 +41,21 @@ export default function SheetEditor({ sheet: propSheet, calculateSheet, onSheetC
         onSheetChange(sheet);
     }, [sheet, onSheetChange]);
 
-    const handleAddRow = () => {
-        dispatch({ type: ActionType.AddRow });
-
-        requestAnimationFrame(() => {
-            if (editorRef.current)
-                editorRef.current.scrollTop = editorRef.current.scrollHeight;
-        });
-    };
-
     /** @type {SheetContextType} */
     const context = {
         sheet: sheet,
         activeCell,
         setActiveCell,
         dispatch,
+    };
+
+    const handleAddRow = () => {
+        context.dispatch({ type: ActionType.AddRow });
+
+        requestAnimationFrame(() => {
+            if (editorRef.current)
+                editorRef.current.scrollTop = editorRef.current.scrollHeight;
+        });
     };
 
     const gridStyle = { gridTemplateColumns: `repeat(${sheet.colCount}, max-content)` };

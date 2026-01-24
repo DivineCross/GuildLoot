@@ -1,6 +1,46 @@
 import Validator from './validator';
 import Sheet, { Cell } from './sheet';
 
+/**
+ * @typedef {Object} ReducerAction
+ * @property {string} type
+ * @property {Map<string, Sheet>} sheetMap
+ * @property {Cell} targetCell
+ * @property {string} cellValue
+ */
+
+const ActionType = Object.freeze({
+    AddRow: 'AddRow',
+    UpdateCell: 'UpdateCell',
+});
+
+/** @param {Sheet} sheet @param {ReducerAction} action */
+function reducer(sheet, action) {
+    const newSheet = new Sheet(
+        sheet.name,
+        [...sheet.heads],
+        [...sheet.rows],
+        [...sheet.colValidators]);
+
+    switch (action.type) {
+        case ActionType.AddRow: {
+            newSheet.addRow();
+
+            return newSheet;
+        }
+        case ActionType.UpdateCell: {
+            for (const row of newSheet.allRows)
+                for (const [c, cell] of row.entries())
+                    if (cell === action.targetCell)
+                        row[c] = new Cell(action.cellValue);
+
+            return CalculateSheet(newSheet, action.sheetMap);
+        }
+        default:
+            return sheet;
+    }
+}
+
 /** @param {Sheet} sheet @param {Map<string, Sheet>} sheetMap @returns {Validator[]} */
 function CreateValidators(sheet, sheetMap) {
     switch (sheet.name) {
@@ -96,4 +136,4 @@ function parseInt(str = '') {
     return Number.isSafeInteger(num) ? num : NaN;
 }
 
-export { Calculate, CalculateSheet };
+export { Calculate, CalculateSheet, reducer, ActionType };
