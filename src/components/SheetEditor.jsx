@@ -49,7 +49,7 @@ export default function SheetEditor({ sheet: propSheet, reducer, onSheetChange }
 
     /** @type {SheetContextType} */
     const sheetContext = {
-        sheet: sheet,
+        sheet,
         activeCell,
     };
 
@@ -107,7 +107,7 @@ function SheetRow({ cells = [], isHead = false }) {
     );
 }
 
-/** @param {{cell: Cell, validator: Validator, isActive: boolean}} */
+/** @type {React.MemoExoticComponent<function({cell: Cell, validator: Validator, isActive: boolean}): JSX.Element>} */
 const SheetCell = React.memo(function SheetCell({ cell, validator, isActive = false }) {
     const dispatchContext = useContext(DispatchContext);
     const activeClass = isActive ? ' sheet__cell--active' : '';
