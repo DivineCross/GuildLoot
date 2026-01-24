@@ -98,16 +98,18 @@ function SheetRow({ cells = [], isHead = false }) {
 
     return (
         <div className={`sheet__row${headClass}`}>{cells.map((cell, i) =>
-            <SheetCell key={i} cell={cell} validator={validators[i]} />
+            <SheetCell
+                key={i}
+                cell={cell}
+                validator={validators[i]}
+                isActive={cell === sheetContext.activeCell} />
         )}</div>
     );
 }
 
-/** @param {{cell: Cell, validator: Validator}} */
-function SheetCell({ cell, validator }) {
-    const sheetContext = useContext(SheetContext);
+/** @param {{cell: Cell, validator: Validator, isActive: boolean}} */
+const SheetCell = React.memo(function SheetCell({ cell, validator, isActive = false }) {
     const dispatchContext = useContext(DispatchContext);
-    const isActive = sheetContext.activeCell === cell;
     const activeClass = isActive ? ' sheet__cell--active' : '';
     const isInvalid = validator?.validate(cell) === false;
     const invalidClass = isInvalid ? ' sheet__cell--invalid' : '';
@@ -146,4 +148,6 @@ function SheetCell({ cell, validator }) {
                 : cell.value}
         </div>
     );
-}
+}, (prev, next) => {
+    return Object.keys(prev).every(k => prev[k] === next[k]);
+});
