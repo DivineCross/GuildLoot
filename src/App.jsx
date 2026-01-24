@@ -4,7 +4,7 @@ import SheetEditor from './components/SheetEditor';
 import './App.css';
 
 import Service from './core/service';
-import { Calculate, CalculateSheet } from './core/calculator';
+import { Calculate, CalculateSheet } from './core/reducer';
 import Sheet from './core/sheet';
 
 const sheetMap = Calculate(Service.loadData());
