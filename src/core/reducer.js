@@ -25,22 +25,23 @@ function reduceMap(sheetMap) {
 
 /** @param {Sheet} sheet @param {ReducerAction} action */
 function reducer(sheet, action) {
-    const newSheet = new Sheet(
-        sheet.name,
-        [...sheet.heads],
-        [...sheet.rows],
-        [...sheet.colValidators]);
+    const newSheet = shallowCopySheet(sheet);
 
     switch (action.type) {
         case ActionType.Calculate: {
-            return calculateSheet(sheet, action.sheetMap);
+            return calculateSheet(newSheet, action.sheetMap);
         }
         case ActionType.AddRow: {
-            newSheet.addRow();
+            newSheet.rows = [
+                ...newSheet.rows,
+                [...Array(newSheet.colCount)].map(() => new Cell),
+            ];
 
             return newSheet;
         }
         case ActionType.UpdateCell: {
+            newSheet.heads = [...newSheet.heads];
+            newSheet.rows = newSheet.rows.map(r => [...r]);
             for (const row of newSheet.allRows)
                 for (const [c, cell] of row.entries())
                     if (cell === action.targetCell)
@@ -55,13 +56,14 @@ function reducer(sheet, action) {
 
 /** @param {Sheet} sheet @param {Map<string, Sheet>} sheetMap */
 function calculateSheet(sheet, sheetMap) {
-    const newSheet = new Sheet(
-        sheet.name, sheet.heads, sheet.rows, createValidators(sheet, sheetMap));
+    const newSheet = shallowCopySheet(sheet);
+
+    newSheet.colValidators = createValidators(newSheet, sheetMap);
 
     switch (newSheet.name) {
         case '口袋': {
             const lootSheet = sheetMap.get('戰利品');
-            newSheet.rows = sheet.rows.map(r => r.map(Cell.fromObject));
+            newSheet.rows = newSheet.rows.map(r => r.map(Cell.fromObject));
 
             for (const row of newSheet.rows) {
                 const itemName = row[0].value;
@@ -128,6 +130,11 @@ function createValidators(sheet, sheetMap) {
         default: return [
         ];
     }
+}
+
+/** @param {Sheet} s @returns {Sheet} */
+function shallowCopySheet(s) {
+    return new Sheet(s.name, s.heads, s.rows, s.colValidators);
 }
 
 function parseInt(str = '') {
