@@ -35,7 +35,7 @@ export default class Validator {
     }
 
     static fromObject(obj) {
-        return new Validator(obj || {});
+        return obj ? new Validator(obj) : obj;
     }
 
     /** @param {Sheet} sheet */
