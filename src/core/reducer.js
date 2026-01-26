@@ -53,38 +53,6 @@ function reducer(sheet, action) {
     }
 }
 
-/** @param {Sheet} sheet @param {Map<string, Sheet>} sheetMap @returns {Validator[]} */
-function createValidators(sheet, sheetMap) {
-    switch (sheet.name) {
-        case '戰利品': return [
-            Validator.fromDate('yyyy/MM/dd'),
-            Validator.fromSheet(sheetMap.get('頭目')),
-            Validator.fromSheet(sheetMap.get('成員')),
-            Validator.fromSheet(sheetMap.get('道具')),
-            Validator.fromIntMinMax(1, 99),
-            Validator.fromSheet(sheetMap.get('成員')),
-            Validator.fromIntMinMax(1, 99),
-            null,
-        ];
-        case ('交易所'): return [
-            Validator.fromDate('yyyy/MM/dd'),
-            Validator.fromSheet(sheetMap.get('道具')),
-            Validator.fromIntMinMax(1, 99),
-            Validator.fromIntMinMax(0, 100000),
-            Validator.fromSheet(sheetMap.get('成員')),
-            null,
-        ];
-        case ('口袋'): return [
-            Validator.fromSheet(sheetMap.get('道具')),
-        ];
-        case ('成員'): return [
-            Validator.fromDate('yyyy/MM/dd'),
-        ];
-        default: return [
-        ];
-    }
-}
-
 /** @param {Sheet} sheet @param {Map<string, Sheet>} sheetMap */
 function calculateSheet(sheet, sheetMap) {
     const newSheet = new Sheet(
@@ -127,6 +95,38 @@ function calculateSheet(sheet, sheetMap) {
         }
         default:
             return newSheet;
+    }
+}
+
+/** @param {Sheet} sheet @param {Map<string, Sheet>} sheetMap @returns {Validator[]} */
+function createValidators(sheet, sheetMap) {
+    switch (sheet.name) {
+        case '戰利品': return [
+            Validator.fromDate('yyyy/MM/dd'),
+            Validator.fromSheet(sheetMap.get('頭目')),
+            Validator.fromSheet(sheetMap.get('成員')),
+            Validator.fromSheet(sheetMap.get('道具')),
+            Validator.fromIntMinMax(1, 99),
+            Validator.fromSheet(sheetMap.get('成員')),
+            Validator.fromIntMinMax(1, 99),
+            null,
+        ];
+        case ('交易所'): return [
+            Validator.fromDate('yyyy/MM/dd'),
+            Validator.fromSheet(sheetMap.get('道具')),
+            Validator.fromIntMinMax(1, 99),
+            Validator.fromIntMinMax(0, 100000),
+            Validator.fromSheet(sheetMap.get('成員')),
+            null,
+        ];
+        case ('口袋'): return [
+            Validator.fromSheet(sheetMap.get('道具')),
+        ];
+        case ('成員'): return [
+            Validator.fromDate('yyyy/MM/dd'),
+        ];
+        default: return [
+        ];
     }
 }
 
