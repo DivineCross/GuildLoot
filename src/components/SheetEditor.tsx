@@ -3,42 +3,35 @@ import Sheet, { Cell } from '../core/sheet';
 import Validator from '../core/validator';
 import { ActionType } from '../core/reducer';
 
-/**
- * @typedef {Object} ReducerAction
- * @property {string} type
- * @property {Map<string, Sheet>} sheetMap
- * @property {Cell} targetCell
- * @property {string} cellValue
- */
+interface ReducerAction {
+    type: string;
+    sheetMap?: Map<string, Sheet>;
+    targetCell?: Cell;
+    cellValue?: string;
+}
 
-/**
- * @typedef {Object} SheetContextType
- * @property {Sheet} sheet
- * @property {Cell} activeCell
- */
-/** @type {React.Context<SheetContextType> | null} */
-const SheetContext = createContext(null);
+interface SheetContextType {
+    sheet: Sheet;
+    activeCell: Cell;
+}
+const SheetContext = createContext<SheetContextType | null>(null);
 
-/**
- * @typedef {Object} DispatchContextType
- * @property {(cell: Cell) => void} setActiveCell
- * @property {(action: ReducerAction) => void} dispatch
- */
-/** @type {React.Context<DispatchContextType> | null} */
-const DispatchContext = createContext(null);
+interface DispatchContextType {
+    setActiveCell: (cell: Cell) => void;
+    dispatch: (action: ReducerAction) => void;
+}
+const DispatchContext = createContext<DispatchContextType | null>(null);
 
-/**
- * @param {{
- *  sheet: Sheet
- *  reducer: (sheet: Sheet, action: ReducerAction) => Sheet
- *  onSheetChange: (sheet: Sheet) => void
- * }}
- */
-export default function SheetEditor({ sheet: propSheet, reducer, onSheetChange }) {
+interface Props {
+    sheet: Sheet;
+    reducer: (sheet: Sheet, action: ReducerAction) => Sheet;
+    onSheetChange: (sheet: Sheet) => void;
+}
+export default function SheetEditor({ sheet: propSheet, reducer, onSheetChange }: Props) {
     const [activeCell, setActiveCell] = useState(new Cell);
     const [sheet, dispatch] = useReducer(reducer, propSheet);
-    const isMountedRef = useRef(false);
-    const editorRef = useRef(null);
+    const isMountedRef = useRef<boolean>(false);
+    const editorRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (!isMountedRef.current)
@@ -76,7 +69,7 @@ export default function SheetEditor({ sheet: propSheet, reducer, onSheetChange }
                 <div className="sheet-editor" ref={editorRef}>
                     <div className="sheet__grid" style={gridStyle}>
                         <SheetRow key="head" cells={sheet.heads} isHead={true} />
-                        {sheet.rows.map((row, i) =>
+                        {sheet.rows.map((row: Cell[], i: number) =>
                             <SheetRow key={i} cells={row} />)}
                     </div>
                     <div className="sheet__toolbar">
@@ -90,9 +83,12 @@ export default function SheetEditor({ sheet: propSheet, reducer, onSheetChange }
     );
 };
 
-/** @param {{cells: Cell[], isHead: boolean}} */
-function SheetRow({ cells = [], isHead = false }) {
-    const sheetContext = useContext(SheetContext);
+interface RowProps {
+    cells: Cell[];
+    isHead?: boolean;
+}
+function SheetRow({ cells, isHead = false }: RowProps) {
+    const sheetContext = useContext(SheetContext)!;
     const validators = isHead ? [] : sheetContext.sheet.colValidators;
     const headClass = isHead ? ' sheet__head' : '';
 
@@ -107,24 +103,27 @@ function SheetRow({ cells = [], isHead = false }) {
     );
 }
 
-/** @type {React.MemoExoticComponent<function({cell: Cell, validator: Validator, isActive: boolean}): JSX.Element>} */
-const SheetCell = React.memo(function SheetCell({ cell, validator, isActive = false }) {
-    const dispatchContext = useContext(DispatchContext);
+interface CellProps {
+    cell: Cell;
+    validator: Validator;
+    isActive: boolean;
+}
+const SheetCell = React.memo(function SheetCell({ cell, validator, isActive }: CellProps) {
+    const dispatchContext = useContext(DispatchContext)!;
     const activeClass = isActive ? ' sheet__cell--active' : '';
     const isInvalid = validator?.validate(cell) === false;
     const invalidClass = isInvalid ? ' sheet__cell--invalid' : '';
 
-    const inputRef = useRef();
+    const inputRef = useRef<HTMLInputElement>(null);
     useEffect(() => {
-        /** @type {HTMLInputElement} */
         const input = inputRef.current;
         if (!input || !isActive)
             return;
 
-        const handler = e => dispatchContext.dispatch({
+        const handler = (e: Event) => dispatchContext?.dispatch({
             type: ActionType.UpdateCell,
             targetCell: cell,
-            cellValue: e.target.value,
+            cellValue: (e.target as HTMLInputElement).value,
         });
 
         input.addEventListener('change', handler);
@@ -149,5 +148,5 @@ const SheetCell = React.memo(function SheetCell({ cell, validator, isActive = fa
         </div>
     );
 }, (prev, next) => {
-    return Object.keys(prev).every(k => prev[k] === next[k]);
+    return (Object.keys(prev) as (keyof CellProps)[]).every(k => prev[k] === next[k]);
 });

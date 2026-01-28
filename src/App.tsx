@@ -5,16 +5,16 @@ import './App.css';
 
 import Service from './core/service';
 import { ActionType, reducer, reduceMap } from './core/reducer';
-import Sheet from './core/sheet';
+import type Sheet from './core/sheet';
 
 const sheetMap = reduceMap(Service.loadData());
 
-const sheetReducer = (sheet, action) => {
+const sheetReducer = (sheet: Sheet, action: any) => {
     return reducer(sheet, { ...action, sheetMap: sheetMap });
 };
 
 /** @param {Sheet} sheet */
-const onSheetChange = sheet => {
+const onSheetChange = (sheet: Sheet) => {
     sheetMap.set(sheet.name, sheet);
     Service.saveData(sheetMap);
 };
