@@ -14,13 +14,6 @@ const ActionType = Object.freeze({
     UpdateCell: 'UpdateCell',
 });
 
-function reduceMap(sheetMap: Map<string, Sheet>) {
-    for (const [name, sheet] of sheetMap)
-        sheetMap.set(name, calculateSheet(sheet, sheetMap));
-
-    return sheetMap;
-}
-
 function reducer(sheet: Sheet, action: ReducerAction) {
     const newSheet = shallowCopySheet(sheet);
 
@@ -140,4 +133,4 @@ function parseInt(str = '') {
     return Number.isSafeInteger(num) ? num : NaN;
 }
 
-export { ActionType, reducer, reduceMap };
+export { ActionType, reducer };
