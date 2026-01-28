@@ -40,14 +40,12 @@ export default function SheetEditor({ sheet: propSheet, reducer, onSheetChange }
         onSheetChange(sheet);
     }, [sheet, onSheetChange]);
 
-    /** @type {SheetContextType} */
-    const sheetContext = {
+    const sheetContext: SheetContextType = {
         sheet,
         activeCell,
     };
 
-    /** @type {DispatchContextType} */
-    const dispatchContext = useMemo(() => ({
+    const dispatchContext: DispatchContextType = useMemo(() => ({
         setActiveCell,
         dispatch,
     }), [setActiveCell, dispatch]);
@@ -105,7 +103,7 @@ function SheetRow({ cells, isHead = false }: RowProps) {
 
 interface CellProps {
     cell: Cell;
-    validator: Validator;
+    validator: Validator | null;
     isActive: boolean;
 }
 const SheetCell = React.memo(function SheetCell({ cell, validator, isActive }: CellProps) {

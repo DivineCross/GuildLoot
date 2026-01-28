@@ -13,7 +13,6 @@ const sheetReducer = (sheet: Sheet, action: any) => {
     return reducer(sheet, { ...action, sheetMap: sheetMap });
 };
 
-/** @param {Sheet} sheet */
 const onSheetChange = (sheet: Sheet) => {
     sheetMap.set(sheet.name, sheet);
     Service.saveData(sheetMap);
@@ -22,7 +21,7 @@ const onSheetChange = (sheet: Sheet) => {
 export default function App() {
     const sheetNames = [...sheetMap.keys()];
     const [activeName, setActiveName] = useState(sheetNames[0]);
-    const sheet = sheetReducer(sheetMap.get(activeName), { type: ActionType.Calculate });
+    const sheet = sheetReducer(sheetMap.get(activeName)!, { type: ActionType.Calculate });
 
     return (
         <div className="app">
