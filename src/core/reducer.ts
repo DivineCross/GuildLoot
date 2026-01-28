@@ -1,13 +1,12 @@
 import Validator from './validator';
 import Sheet, { Cell } from './sheet';
 
-/**
- * @typedef {Object} ReducerAction
- * @property {string} type
- * @property {Map<string, Sheet>} sheetMap
- * @property {Cell} targetCell
- * @property {string} cellValue
- */
+interface ReducerAction {
+    type: string;
+    sheetMap: Map<string, Sheet>;
+    targetCell: Cell;
+    cellValue: string;
+}
 
 const ActionType = Object.freeze({
     Calculate: 'Calculate',
@@ -15,16 +14,14 @@ const ActionType = Object.freeze({
     UpdateCell: 'UpdateCell',
 });
 
-/** @param {Map<string, Sheet>} sheetMap */
-function reduceMap(sheetMap) {
+function reduceMap(sheetMap: Map<string, Sheet>) {
     for (const [name, sheet] of sheetMap)
         sheetMap.set(name, calculateSheet(sheet, sheetMap));
 
     return sheetMap;
 }
 
-/** @param {Sheet} sheet @param {ReducerAction} action */
-function reducer(sheet, action) {
+function reducer(sheet: Sheet, action: ReducerAction) {
     const newSheet = shallowCopySheet(sheet);
 
     switch (action.type) {
@@ -54,15 +51,14 @@ function reducer(sheet, action) {
     }
 }
 
-/** @param {Sheet} sheet @param {Map<string, Sheet>} sheetMap */
-function calculateSheet(sheet, sheetMap) {
+function calculateSheet(sheet: Sheet, sheetMap: Map<string, Sheet>) {
     const newSheet = shallowCopySheet(sheet);
 
     newSheet.colValidators = createValidators(newSheet, sheetMap);
 
     switch (newSheet.name) {
         case '口袋': {
-            const lootSheet = sheetMap.get('戰利品');
+            const lootSheet = sheetMap.get('戰利品')!;
             newSheet.rows = newSheet.rows.map(r => r.map(Cell.fromObject));
 
             for (const row of newSheet.rows) {
@@ -100,29 +96,28 @@ function calculateSheet(sheet, sheetMap) {
     }
 }
 
-/** @param {Sheet} sheet @param {Map<string, Sheet>} sheetMap @returns {Validator[]} */
-function createValidators(sheet, sheetMap) {
+function createValidators(sheet: Sheet, sheetMap: Map<string, Sheet>): (Validator | null)[] {
     switch (sheet.name) {
         case '戰利品': return [
             Validator.fromDate('yyyy/MM/dd'),
-            Validator.fromSheet(sheetMap.get('頭目')),
-            Validator.fromSheet(sheetMap.get('成員')),
-            Validator.fromSheet(sheetMap.get('道具')),
+            Validator.fromSheet(sheetMap.get('頭目')!),
+            Validator.fromSheet(sheetMap.get('成員')!),
+            Validator.fromSheet(sheetMap.get('道具')!),
             Validator.fromIntMinMax(1, 99),
-            Validator.fromSheet(sheetMap.get('成員')),
+            Validator.fromSheet(sheetMap.get('成員')!),
             Validator.fromIntMinMax(1, 99),
             null,
         ];
         case ('交易所'): return [
             Validator.fromDate('yyyy/MM/dd'),
-            Validator.fromSheet(sheetMap.get('道具')),
+            Validator.fromSheet(sheetMap.get('道具')!),
             Validator.fromIntMinMax(1, 99),
             Validator.fromIntMinMax(0, 100000),
-            Validator.fromSheet(sheetMap.get('成員')),
+            Validator.fromSheet(sheetMap.get('成員')!),
             null,
         ];
         case ('口袋'): return [
-            Validator.fromSheet(sheetMap.get('道具')),
+            Validator.fromSheet(sheetMap.get('道具')!),
         ];
         case ('成員'): return [
             Validator.fromDate('yyyy/MM/dd'),
@@ -132,8 +127,7 @@ function createValidators(sheet, sheetMap) {
     }
 }
 
-/** @param {Sheet} s @returns {Sheet} */
-function shallowCopySheet(s) {
+function shallowCopySheet(s: Sheet): Sheet {
     return new Sheet(s.name, s.heads, s.rows, s.colValidators);
 }
 

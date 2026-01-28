@@ -1,14 +1,22 @@
 import Validator from './validator';
 
+interface SheetProps {
+    name?: string;
+    heads?: Cell[];
+    rows?: Cell[][];
+    colValidators?: (Validator | null)[];
+}
+
 class Sheet {
-    constructor(name = '', heads = [], rows = [], colValidators = []) {
-        /** @type {string} */
+    name: string;
+    heads: Cell[];
+    rows: Cell[][];
+    colValidators: (Validator | null)[];
+
+    constructor(name: string, heads: Cell[], rows: Cell[][], colValidators: (Validator | null)[]) {
         this.name = name;
-        /** @type {Cell[]} */
         this.heads = heads;
-        /** @type {Cell[][]} */
         this.rows = rows;
-        /** @type {Validator[]} */
         this.colValidators = colValidators;
     }
 
@@ -24,7 +32,7 @@ class Sheet {
         return [this.heads, ...this.rows];
     }
 
-    static fromObject({ name = '', heads = [], rows = [], colValidators = [] } = {}) {
+    static fromObject({ name = '', heads = [], rows = [], colValidators = [] }: SheetProps) {
         return new Sheet(
             name,
             heads.map(Cell.fromObject),
@@ -37,7 +45,7 @@ class Sheet {
         const rows = content.trim().split('\n')
             .map(line => line.split('\t').map(v => new Cell(v)));
 
-        return new Sheet(name, rows[0], rows.slice(1));
+        return new Sheet(name, rows[0], rows.slice(1), []);
     }
 
     normalize() {
@@ -58,6 +66,8 @@ class Sheet {
 }
 
 class Cell {
+    value: string;
+
     constructor(value = '') {
         this.value = value;
     }

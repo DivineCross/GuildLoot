@@ -1,15 +1,19 @@
 import Sheet, { Cell } from './sheet';
 
+interface Props {
+    validValues?: string[];
+    dateFormat?: string;
+    min?: number;
+    max?: number;
+}
+
 export default class Validator {
-    /**
-     * @param {{
-     *  validValues?: string[]
-     *  dateFormat?: string
-     *  min?: number
-     *  max?: number
-     * }}
-     */
-    constructor({ validValues, dateFormat, min, max } = {}) {
+    readonly validValues?: readonly string[];
+    readonly dateFormat?: string;
+    readonly min?: number;
+    readonly max?: number;
+
+    constructor({ validValues, dateFormat, min, max }: Props) {
         this.validValues = validValues ? Object.freeze([...validValues]) : undefined;
         this.dateFormat = dateFormat;
         this.min = min;
@@ -34,19 +38,18 @@ export default class Validator {
         return this.hasValues(this.min, this.max);
     }
 
-    static fromObject(obj) {
+    static fromObject(obj: any) {
         return obj ? new Validator(obj) : obj;
     }
 
-    /** @param {Sheet} sheet */
-    static fromSheet(sheet) {
+    static fromSheet(sheet: Sheet) {
         return new Validator({
             validValues: sheet.rows.flatMap(
                 row => row.filter(c => !c.isEmpty).map(c => c.value))
         });
     }
 
-    static fromDate(dateFormat) {
+    static fromDate(dateFormat: string) {
         if (dateFormat !== 'yyyy/MM/dd')
             throw new Error('support only yyyy/MM/dd');
 
@@ -54,7 +57,7 @@ export default class Validator {
 
     }
 
-    static fromIntMinMax(min, max) {
+    static fromIntMinMax(min: number, max: number) {
         if (!(Number.isSafeInteger(min) && Number.isSafeInteger(max)))
             throw new Error('min and max should be integer');
         if (min > max)
@@ -63,15 +66,14 @@ export default class Validator {
         return new Validator({ min, max });
     }
 
-    /** @param {Cell} cell */
-    validate(cell) {
+    validate(cell: Cell) {
         const str = cell.value;
 
         if (cell.isEmpty)
             return true;
 
         if (this.isByValues)
-            return this.validValues.includes(cell.value);
+            return this.validValues!.includes(cell.value);
 
         if (this.isByDate) {
             if (!/^\d{4}\/\d{2}\/\d{2}$/.test(str))
@@ -94,13 +96,13 @@ export default class Validator {
 
             return !Number.isSafeInteger(num)
                 ? false
-                : this.min <= num && num <= this.max;
+                : this.min! <= num && num <= this.max!;
         }
 
         return false;
     }
 
-    hasValues(...props) {
+    hasValues(...props: any[]) {
         return props.every(x => x !== undefined);
     }
 }

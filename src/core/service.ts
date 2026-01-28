@@ -1,4 +1,4 @@
-import Sheet, { Cell } from './sheet';
+import Sheet from './sheet';
 import { sheetMap as mockSheetMap } from '../mock';
 
 const AppName = 'guildLoot';
@@ -7,16 +7,14 @@ const StorageKey = Object.freeze({
 });
 
 export default class Service {
-    /** @returns {Map<string, Sheet>} */
     static loadData() {
-        /** @type {Map<string, Sheet>} */
         const localSheetMap = (() => {
             const json = localStorage.getItem(StorageKey.SheetMap);
             if (!json)
                 return null;
 
-            const map = new Map(JSON.parse(json)
-                .map(kv => [kv[0], Sheet.fromObject(kv[1])]));
+            const kvs: [string, any][] = JSON.parse(json);
+            const map = new Map(kvs.map(kv => [kv[0], Sheet.fromObject(kv[1])]));
 
             return map;
         })();
@@ -29,8 +27,7 @@ export default class Service {
         return sheetMap;
     }
 
-    /** @param {Map<string, Sheet>} sheetMap */
-    static saveData(sheetMap) {
+    static saveData(sheetMap: Map<string, Sheet>) {
         localStorage.setItem(StorageKey.SheetMap, JSON.stringify([...sheetMap]));
     }
 }

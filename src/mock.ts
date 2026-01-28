@@ -289,8 +289,7 @@ const memberSheet = Sheet.fromPaste('成員', `
 2024/05/31	那孩子
 `);
 
-/** @type {Map<string, Sheet>} */
-const sheetMap = new Map;
+const sheetMap: Map<string, Sheet> = new Map;
 
 sheetMap.set(lootSheet.name, lootSheet);
 sheetMap.set(transactionSheet.name, transactionSheet);
