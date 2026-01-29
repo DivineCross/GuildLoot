@@ -3,9 +3,9 @@ import Sheet, { Cell } from './sheet';
 
 interface ReducerAction {
     type: string;
-    sheetMap: Map<string, Sheet>;
-    targetCell: Cell;
-    cellValue: string;
+    sheetMap?: Map<string, Sheet>;
+    targetCell?: Cell;
+    cellValue?: string;
 }
 
 const ActionType = Object.freeze({
@@ -19,7 +19,7 @@ function reducer(sheet: Sheet, action: ReducerAction) {
 
     switch (action.type) {
         case ActionType.Calculate: {
-            return calculateSheet(newSheet, action.sheetMap);
+            return calculateSheet(newSheet, action.sheetMap!);
         }
         case ActionType.AddRow: {
             newSheet.rows = [
@@ -37,7 +37,7 @@ function reducer(sheet: Sheet, action: ReducerAction) {
                     if (cell === action.targetCell)
                         row[c] = new Cell(action.cellValue);
 
-            return calculateSheet(newSheet, action.sheetMap);
+            return calculateSheet(newSheet, action.sheetMap!);
         }
         default:
             return sheet;
@@ -133,4 +133,4 @@ function parseInt(str = '') {
     return Number.isSafeInteger(num) ? num : NaN;
 }
 
-export { ActionType, reducer };
+export { type ReducerAction, ActionType, reducer };

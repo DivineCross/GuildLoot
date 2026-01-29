@@ -4,12 +4,12 @@ import SheetEditor from './components/SheetEditor';
 import './App.css';
 
 import Service from './core/service';
-import { ActionType, reducer } from './core/reducer';
+import { type ReducerAction, ActionType, reducer } from './core/reducer';
 import type Sheet from './core/sheet';
 
 const sheetMap = Service.loadData();
 
-const sheetReducer = (sheet: Sheet, action: any) => {
+const sheetReducer = (sheet: Sheet, action: ReducerAction) => {
     return reducer(sheet, { ...action, sheetMap: sheetMap });
 };
 

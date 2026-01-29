@@ -1,14 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import Sheet, { Cell } from '../core/sheet';
 import Validator from '../core/validator';
-import { ActionType } from '../core/reducer';
-
-interface ReducerAction {
-    type: string;
-    sheetMap?: Map<string, Sheet>;
-    targetCell?: Cell;
-    cellValue?: string;
-}
+import { type ReducerAction, ActionType } from '../core/reducer';
 
 interface SheetContextType {
     sheet: Sheet;
