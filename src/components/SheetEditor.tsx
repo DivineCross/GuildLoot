@@ -1,13 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import Sheet, { Cell } from '../core/sheet';
-import Validator from '../core/validator';
 import { type ReducerAction, ActionType } from '../core/reducer';
-
-interface SheetContextType {
-    sheet: Sheet;
-    activeCell: Cell;
-}
-const SheetContext = createContext<SheetContextType | null>(null);
 
 interface DispatchContextType {
     setActiveCell: (cell: Cell) => void;
@@ -33,11 +26,6 @@ export default function SheetEditor({ sheet: propSheet, reducer, onSheetChange }
         onSheetChange(sheet);
     }, [sheet, onSheetChange]);
 
-    const sheetContext: SheetContextType = {
-        sheet,
-        activeCell,
-    };
-
     const dispatchContext: DispatchContextType = useMemo(() => ({
         setActiveCell,
         dispatch,
@@ -53,56 +41,52 @@ export default function SheetEditor({ sheet: propSheet, reducer, onSheetChange }
     };
 
     const gridStyle = { gridTemplateColumns: `repeat(${sheet.colCount}, max-content)` };
+    const viewRows = useMemo(() => {
+        return sheet.allRows.map((row, r) => row.map((cell, c) => {
+            const validator = sheet.colValidators[c];
+            const isInvalid = r !== 0 && validator?.validate(cell) === false;
+            const cellProps: CellProps = {
+                cell,
+                isActive: cell === activeCell,
+                isInvalid,
+                message: isInvalid ? validator.message : undefined,
+            };
+
+            return cellProps;
+        }))
+    }, [sheet, activeCell]);
 
     return (
-        <SheetContext.Provider value={sheetContext}>
-            <DispatchContext.Provider value={dispatchContext}>
-                <div className="sheet-editor" ref={editorRef}>
-                    <div className="sheet__grid" style={gridStyle}>
-                        <SheetRow key="head" cells={sheet.heads} isHead={true} />
-                        {sheet.rows.map((row: Cell[], i: number) =>
-                            <SheetRow key={i} cells={row} />)}
-                    </div>
-                    <div className="sheet__toolbar">
-                        <button onClick={handleAddRow}>
-                            ＋ 新增列
-                        </button>
-                    </div>
+        <DispatchContext.Provider value={dispatchContext}>
+            <div className="sheet-editor" ref={editorRef}>
+                <div className="sheet__grid" style={gridStyle}>{
+                    viewRows.map((row, r) =>
+                        <div className={`sheet__row${r === 0 ? ' sheet__head' : ''}`} key={r}>{
+                            row.map((props, c) =>
+                                <SheetCell key={c} {...props} />
+                            )
+                        }</div>
+                    )
+                }</div>
+                <div className="sheet__toolbar">
+                    <button onClick={handleAddRow}>
+                        ＋ 新增列
+                    </button>
                 </div>
-            </DispatchContext.Provider>
-        </SheetContext.Provider>
+            </div>
+        </DispatchContext.Provider>
     );
 };
 
-interface RowProps {
-    cells: Cell[];
-    isHead?: boolean;
-}
-function SheetRow({ cells, isHead = false }: RowProps) {
-    const sheetContext = useContext(SheetContext)!;
-    const validators = isHead ? [] : sheetContext.sheet.colValidators;
-    const headClass = isHead ? ' sheet__head' : '';
-
-    return (
-        <div className={`sheet__row${headClass}`}>{cells.map((cell, i) =>
-            <SheetCell
-                key={i}
-                cell={cell}
-                validator={validators[i]}
-                isActive={cell === sheetContext.activeCell} />
-        )}</div>
-    );
-}
-
 interface CellProps {
     cell: Cell;
-    validator: Validator | null;
     isActive: boolean;
+    isInvalid: boolean;
+    message: string | undefined;
 }
-const SheetCell = React.memo(function SheetCell({ cell, validator, isActive }: CellProps) {
+const SheetCell = React.memo(function SheetCell({ cell, isActive, isInvalid, message }: CellProps) {
     const dispatchContext = useContext(DispatchContext)!;
     const activeClass = isActive ? ' sheet__cell--active' : '';
-    const isInvalid = validator?.validate(cell) === false;
     const invalidClass = isInvalid ? ' sheet__cell--invalid' : '';
 
     const inputRef = useRef<HTMLInputElement>(null);
@@ -125,7 +109,7 @@ const SheetCell = React.memo(function SheetCell({ cell, validator, isActive }: C
     return (
         <div
             className={`sheet__cell${activeClass}${invalidClass}`}
-            title={isInvalid ? validator.message : undefined}
+            title={message}
             onClick={() => dispatchContext.setActiveCell(cell)}>
             {isActive
                 ? <>
