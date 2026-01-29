@@ -29,7 +29,7 @@ export default function SheetEditor({ sheet: propSheet, reducer, onSheetChange }
     const dispatchContext: DispatchContextType = useMemo(() => ({
         setActiveCell,
         dispatch,
-    }), [setActiveCell, dispatch]);
+    }), []);
 
     const handleAddRow = () => {
         dispatchContext.dispatch({ type: ActionType.AddRow });
