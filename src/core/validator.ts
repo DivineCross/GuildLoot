@@ -38,7 +38,7 @@ export default class Validator {
         return this.hasValues(this.min, this.max);
     }
 
-    static fromObject(obj: any) {
+    static fromObject(obj: object) {
         return obj ? new Validator(obj) : obj;
     }
 
@@ -102,7 +102,7 @@ export default class Validator {
         return false;
     }
 
-    hasValues(...props: any[]) {
+    hasValues(...props: unknown[]) {
         return props.every(x => x !== undefined);
     }
 }

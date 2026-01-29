@@ -58,7 +58,7 @@ function calculateSheet(sheet: Sheet, sheetMap: Map<string, Sheet>) {
                 const itemName = row[0].value;
                 const isEmptyItemName = !itemName.trim().length;
 
-                for (const [c, _] of row.entries()) {
+                for (const [c] of row.entries()) {
                     if (c === 0)
                         continue;
 

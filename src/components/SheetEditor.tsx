@@ -53,7 +53,7 @@ export default function SheetEditor({ sheet: propSheet, reducer, onSheetChange }
             };
 
             return cellProps;
-        }))
+        }));
     }, [sheet, activeCell]);
 
     return (

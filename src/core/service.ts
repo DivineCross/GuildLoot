@@ -13,7 +13,7 @@ export default class Service {
             if (!json)
                 return null;
 
-            const kvs: [string, any][] = JSON.parse(json);
+            const kvs: [string, object][] = JSON.parse(json);
             const map = new Map(kvs.map(kv => [kv[0], Sheet.fromObject(kv[1])]));
 
             return map;
