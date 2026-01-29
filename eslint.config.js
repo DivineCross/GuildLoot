@@ -7,29 +7,6 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 export default defineConfig([
     globalIgnores(['dist']),
     {
-        files: ['**/*.{js,jsx}'],
-        extends: [
-            js.configs.recommended,
-            reactHooks.configs.flat.recommended,
-            reactRefresh.configs.vite,
-        ],
-        languageOptions: {
-            ecmaVersion: 2020,
-            globals: globals.browser,
-            parserOptions: {
-                ecmaVersion: 'latest',
-                ecmaFeatures: { jsx: true },
-                sourceType: 'module',
-            },
-        },
-        rules: {
-            'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
-            'indent': ['error', 4, { SwitchCase: 1 }],
-            'semi': ['error', 'always'],
-            'quotes': ['warn', 'single'],
-        },
-    },
-    {
         files: ['**/*.{ts,tsx}'],
         extends: [
             js.configs.recommended,
@@ -40,6 +17,12 @@ export default defineConfig([
         languageOptions: {
             ecmaVersion: 2020,
             globals: globals.browser,
+        },
+        rules: {
+            'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+            'indent': ['error', 4, { SwitchCase: 1 }],
+            'semi': ['error', 'always'],
+            'quotes': ['warn', 'single'],
         },
     }
 ]);
